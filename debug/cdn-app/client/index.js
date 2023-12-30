@@ -44,10 +44,81 @@ MiniFw.AppState.dispatch('setItems', 'Milk Bread Eggs Apples Oranges'.split(' ')
   name, completed: false, store: { name: 'Kroger' }
 })));
 
+MiniFw.Router.init({
+  routes: {
+    '/': 'todo-list',
+    '/calendar': 'calendar-page',
+    '/calendar/:name': {
+      tagName: 'calendar-page',
+      routes: {
+        '/': '',
+        '/:day': 'calendar-day'
+      }
+    },
+  },
+  notFoundTag: 'not-found-page'
+});
+
+MiniFw.createElement(
+  class MainAppElement extends MiniFw.AppElement {
+    static tagName = 'app-element'
+
+    get template() {
+      return `
+        <style>
+          a, button {
+            margin: 6px;
+            display: inline-block;
+            box-sizing: border-box;
+          }
+        </style>
+        <a href="/">To Do List</a>
+        <a href="/calendar">Calendar</a>
+        <a href="https://google.com">Google</a>
+        <button data-router-link href="/">To Do list</button>
+        <a href="/calendar/krista">Krista's Calendar</a>
+        <a href="/calendar/joe/monday">Joe's Monday Calendar</a>
+        <router-outlet></router-outlet>
+      `;
+    }
+  }
+);
+
+MiniFw.createElement(
+  class extends MiniFw.AppElement {
+    static tagName = 'calendar-page'
+    static observedAttributes = ['name'];
+
+    name;
+
+    get template() {
+      return `
+        <h1>${this.name ? `${this.name}'s calendar` : `Calendar page`}</h1>
+        <time-display></time-display>
+        <p>This is the calendar page</p>
+        ${this.name ? '<router-outlet></router-outlet>' : ''}
+      `;
+    }
+  }
+);
+
+MiniFw.createElement(
+  class extends MiniFw.AppElement {
+    static tagName = 'not-found-page'
+
+    get template() {
+      return `
+        <h1>404</h1>
+        <h2>Not found</h2>
+      `;
+    }
+  }
+);
+
 MiniFw.createElement(
   class TodoAppElement extends MiniFw.AppElement {
     static observedAttributes = ['items'];
-    static tagName = 'app-element';
+    static tagName = 'todo-list';
 
     items = [];
 
@@ -61,7 +132,7 @@ MiniFw.createElement(
       this.queryListener('.add', 'click', (event) => {
         const name = prompt('Enter item name');
         if (name) {
-          this.stateDispatch('addItem', {name, completed: false, store: {name: 'Kroger'}});
+          this.stateDispatch('addItem', { name, completed: false, store: { name: 'Kroger' } });
         }
       });
     }
@@ -104,7 +175,7 @@ MiniFw.createElement(
 
     renderedCallback() {
       this.queryListener('input', 'change', (event) => {
-        this.stateDispatch('setItem', this.indexNum, {...this.item, completed: event.target.checked});
+        this.stateDispatch('setItem', this.indexNum, { ...this.item, completed: event.target.checked });
       });
 
       this.queryListener('.remove', 'click', () => {
@@ -120,7 +191,7 @@ MiniFw.createElement(
       if (!this.item) {
         return '';
       }
-      const {name, completed, store} = this.item;
+      const { name, completed, store } = this.item;
       return `<div class="todo-item">
       <input type="checkbox" data-name="${name}" ${completed ? 'checked="true"' : ''}"/>
       <h3>
@@ -174,6 +245,20 @@ MiniFw.createElement(
     get template() {
       return `<div>
         <p>This is a component with a simple template.</p>
+      </div>`
+    }
+  }
+);
+
+MiniFw.createElement(
+  class CalendarDay extends MiniFw.AppElement {
+    static observedAttributes = ['day'];
+    static tagName = 'calendar-day';
+
+    get template() {
+      return `<div>
+        Calendar day!
+        <h2>${this.day}</h2>
       </div>`
     }
   }

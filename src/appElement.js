@@ -104,7 +104,7 @@ export class AppElement extends HTMLElement {
       this.setHTML(html); // TODO: Test this
     } else {
       this.innerHTML = DOMPurify.sanitize(html, {
-        WHOLE_DOCUMENT: false,
+        WHOLE_DOCUMENT: true, // Important. Workaround for this: https://github.com/cure53/DOMPurify/issues/37
         FORCE_BODY: false,
         CUSTOM_ELEMENT_HANDLING: {
           tagNameCheck: (_tagName) => true, // allow all tags starting with "foo-"
