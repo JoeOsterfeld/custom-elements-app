@@ -14,9 +14,10 @@
     "@rollup/plugin-commonjs": "^25.0.7",
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@rollup/plugin-terser": "^0.4.4",
+    "rollup": "^4.9.1",
+    "rollup-plugin-sourcemaps": "^0.6.3",
     "compression": "^1.7.4",
     "express": "^4.18.2",
-    "onchange": "^7.1.0",
-    "rollup": "^4.9.1"
+    "onchange": "^7.1.0"
   }
 }
