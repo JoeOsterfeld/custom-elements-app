@@ -2,12 +2,14 @@ const nodeResolve = require('@rollup/plugin-node-resolve');
 const commonjs = require('@rollup/plugin-commonjs');
 const terser = require('@rollup/plugin-terser');
 const sourceMaps = require('rollup-plugin-sourcemaps');
+const typescript = require('@rollup/plugin-typescript');
+
 
 
 const formats = ['esm', 'umd', 'cjs'];
 
 module.exports = formats.map(format => ({
-  input: 'src/index.js',
+  input: 'src/index.ts',
   output: {
     file: `dist/minifw.${format}.js`,
     format,
@@ -15,11 +17,15 @@ module.exports = formats.map(format => ({
     sourcemap: true,
   },
   plugins: [
-      sourceMaps(),
-      nodeResolve(),
-      commonjs(),
-      terser({
-        sourceMap: true
-      }),
+    typescript({
+      typescript: require("typescript"),
+      tsconfig: './tsconfig.json'
+    }),
+    sourceMaps(),
+    nodeResolve(),
+    commonjs(),
+    terser({
+      sourceMap: true
+    }),
   ]
 }));

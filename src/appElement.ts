@@ -1,24 +1,24 @@
 import {AppState} from './appState';
 import {createProxy} from './elementValueProxy';
 
-export class AppElement extends HTMLElement {
-  static tagName = 'app-element'
-  static observedAttributes = [];
-  _eventListenerParams = [];
-  _stateListenerIds = [];
-  _proxyValues = {};
+export abstract class AppElement extends HTMLElement {
+  static tagName: string = 'app-element'
+  static observedAttributes: string[] = [];
+  _eventListenerParams: any[][] = [];
+  _stateListenerIds: any[] = [];
+  _proxyValues: any = {};
   _renderNum = 0;
 
   get template() {
-    return `New element: ${this.constructor.tagName}`;
+    return '';
   }
 
-  attributeChangedCallback(name, _oldValue, newValue) {
-    this[name] = newValue;
+  attributeChangedCallback(name: string, _oldValue: any, newValue: any) {
+    (this as any)[name] = newValue;
   }
 
   connectedCallback() {
-    for (const attrName of this.constructor.observedAttributes) {
+    for (const attrName of (this.constructor as any).observedAttributes) {
       this._initObservedAttribute(attrName);
     }
     this.updateTemplate();
@@ -35,24 +35,24 @@ export class AppElement extends HTMLElement {
   initializedCallback() { };
   renderedCallback() { };
 
-  templateMap = (arrayValue, mapFn) => {
+  templateMap = (arrayValue: any, mapFn: any) => {
     return arrayValue.map(mapFn).join('');
   }
 
-  queryListener(query, eventName, handler) {
+  queryListener(query: string, eventName: string, handler: (event: Event) => any) {
     this.querySelectorAll(query).forEach(el => {
       this._eventListenerParams.push([el, eventName, handler]);
       el.addEventListener(eventName, handler);
     });
   }
 
-  stateListener(selectorName, callback, ...args) {
+  stateListener(selectorName: string, callback: any, ...args: any[]) {
     this._stateListenerIds.push(
       AppState.listen(selectorName, callback, ...args)
     );
   }
 
-  stateDispatch(actionName, ...args) {
+  stateDispatch(actionName: string, ...args: any[]) {
     AppState.dispatch(actionName, ...args);
   }
 
@@ -72,16 +72,16 @@ export class AppElement extends HTMLElement {
     }
   }
 
-  _initObservedAttribute(attrName) {
-    const initialVal = this[attrName];
+  _initObservedAttribute(attrName: string) {
+    const initialVal: any = (this as any)[attrName];
     Object.defineProperty(this, attrName, {
-      get: () => this._proxyValues[attrName],
+      get: () => this._proxyValues[attrName] as any,
       set: (value) => {
         this._proxyValues[attrName] = createProxy(value, () => this.updateTemplate());
         this.updateTemplate();
       }
     });
-    this[attrName] = initialVal;
+    (this as any)[attrName] = initialVal;
   }
 
   /**
@@ -89,26 +89,26 @@ export class AppElement extends HTMLElement {
    * If Sanitizer not present, imports the DomPurify pkg
    * over the CDN.
    */
-  async setSanitizedHTML(html, renderNum) {
+  async setSanitizedHTML(html: string, renderNum: number) {
     if (!window.Sanitizer && !window.DOMPurify) {
       /**
        * Load DOMPurify package on demand when not present
        */
-      window.DOMPurify = (await import("https://cdn.jsdelivr.net/npm/dompurify@3.0.6/+esm")).default;
+      window.DOMPurify = (await import('https://cdn.jsdelivr.net/npm/dompurify@3.0.6/+esm' as any)).default;
     }
     if (renderNum !== this._renderNum) {
       // Keep track of render number so initial load doesn't get mixed with subsequent ones
       return;
     }
     if (window.Sanitizer) {
-      this.setHTML(html); // TODO: Test this
+      (this as any).setHTML(html); // TODO: Test this
     } else {
-      this.innerHTML = DOMPurify.sanitize(html, {
+      this.innerHTML = window.DOMPurify.sanitize(html, {
         WHOLE_DOCUMENT: true, // Important. Workaround for this: https://github.com/cure53/DOMPurify/issues/37
         FORCE_BODY: false,
         CUSTOM_ELEMENT_HANDLING: {
-          tagNameCheck: (_tagName) => true, // allow all tags starting with "foo-"
-          attributeNameCheck: (_attr) => true, // allow all attributes containing "baz"
+          tagNameCheck: (_tagName: string) => true, // allow all tags starting with "foo-"
+          attributeNameCheck: (_attr: string) => true, // allow all attributes containing "baz"
           allowCustomizedBuiltInElements: true, // allow customized built-ins
         }
       });

@@ -3,15 +3,25 @@ import { createElement } from "./createElement";
 
 const navigateEventName = 'MiniFw.navigate';
 
-class RouterKlass {
-  config = {}; // Route Config. TODO: Type this
-  pathHistory = []; // String array of previous paths navigated to
-  routeHierarchy = []; // Array of configuration of router outlets from root down.
+export interface RouteHierarchyItem { path: string; tag: string; params: any }
 
-  init(config) {
+export interface RouterConfig {
+  tagName?: string;
+  notFoundTag?: string;
+  routes?: {
+    [route: string]: string | RouterConfig
+  }
+};
+
+class RouterKlass {
+  config: RouterConfig = {}; // Route Config. TODO: Type this
+  pathHistory = []; // String array of previous paths navigated to
+  routeHierarchy: RouteHierarchyItem[] | undefined = []; // Array of configuration of router outlets from root down.
+
+  init(config: RouterConfig) {
     this.config = config;
     this.navigate(window.location.pathname);
-    const documentClickArgs = ['click', (event) => {
+    const documentClickArgs: [any, any] = ['click', (event: any) => {
       if (event.target instanceof HTMLAnchorElement || event.target.hasAttribute('data-router-link')) {
         const href = event.target.getAttribute('href');
         let urlObj;
@@ -23,7 +33,7 @@ class RouterKlass {
       }
     }];
     document.addEventListener(...documentClickArgs);
-    const winPopArgs = ['popstate', () => {
+    const winPopArgs: [any, any] = ['popstate', () => {
       this.navigate(window.location.pathname, true);
     }];
     window.addEventListener(...winPopArgs);
@@ -33,9 +43,9 @@ class RouterKlass {
     });
   }
 
-  navigate(path, back) {
-    this.pathHistory[back ? 'pop' : 'push'](path);
-    window.history[back ? 'replaceState' : 'pushState']({}, null, path);
+  navigate(path: string, back = false) {
+    this.pathHistory[back ? 'pop' : 'push'](path as never);
+    window.history[back ? 'replaceState' : 'pushState']({}, '', path);
     this.routeHierarchy = this.getHierarchy();
     document.dispatchEvent(new CustomEvent(navigateEventName, { detail: this.routeHierarchy }));
     // TODO: Add active classes to all link els.
@@ -49,9 +59,9 @@ class RouterKlass {
   getHierarchy() {
     const _getMatch = this._getMatchParams; // For keeping "this" reference
     const locationSegs = window.location.pathname.split('/');
-    let hierarchy = (function deepResolve(config, parents) {
+    let hierarchy = (function deepResolve(config, parents: RouteHierarchyItem[]) {
       const parentPath = parents.map(res => res.path).join('/');
-      for (const [routePath, routeCfg] of (Object.entries(config.routes || {}))) {
+      for (const [routePath, routeCfg] of ((Object as any).entries(config.routes || {}))) {
         let composedPath = `${parentPath}${routePath}`;
         if (composedPath.length > 1) {
           composedPath = composedPath.replace(/\/$/, ''); // Strip trailing slash
@@ -73,14 +83,14 @@ class RouterKlass {
           const params = _getMatch(matchLocSegs, templateSegs);
           if (params) {
             // If matching, append a parent and recursively dig for full match
-            parents.push({ path: composedPath, tag: routeCfg.tagName, params });
+            parents.push({ path: composedPath, tag: routeCfg.tagName || '', params });
             return deepResolve(routeCfg, parents);
           }
         }
       }
     })(this.config, []);
     if (!hierarchy || (hierarchy && !hierarchy.length)) {
-      hierarchy = [{ path: window.location.pathname, tag: this.config.notFoundTag, params: {} }];
+      hierarchy = [{ path: window.location.pathname, tag: this.config.notFoundTag || '', params: {} }];
     }
     return hierarchy;
   }
@@ -92,9 +102,9 @@ class RouterKlass {
    * @param {string[]} templateSegs 
    * @returns 
    */
-  _getMatchParams(segs, templateSegs) {
-    const params = {};
-    const escapeDots = (str) => Array.from(str, char => char === '.' ? '\\.' : char).join('');
+  _getMatchParams(segs: string[], templateSegs: string[]) {
+    const params: any = {};
+    const escapeDots = (str: string) => Array.from(str, char => char === '.' ? '\\.' : char).join('');
     const match = RegExp(`^${templateSegs
       .map((str, index) => {
         if (str.startsWith(':')) {
@@ -116,30 +126,33 @@ class RouterKlass {
 createElement(
   class RouterElement extends AppElement {
     static tagName = 'router-outlet';
-    static observedAttributes = ['pageTag']
+    static observedAttributes: string[] = ['pageTag'];
 
-    pageTag;
-    params;
+    pageTag: string | undefined;
+    params: any;
+    _parentRouterOutlets!: HTMLElement[];
 
     get parentRouterOutlets() {
       if (this._parentRouterOutlets) {
         return this._parentRouterOutlets;
       }
-      const parents = [];
-      let el = this;
+      let parentOutlets = [];
+      let el = this.parentElement;
       while (el) {
-        el = el.parentNode;
-        if (el && el.tagName?.toLowerCase() === RouterElement.tagName) {
-          parents.push(el);
+        if (el.tagName === this.tagName) {
+          parentOutlets.push(el);
         }
+        el = el.parentElement;
       }
-      this._parentRouterOutlets = parents;
-      return parents;
+      this._parentRouterOutlets = parentOutlets;
+      return parentOutlets;
     }
 
     initializedCallback() {
-      this.resolve();
-      document.addEventListener(navigateEventName, () => this.resolve());
+      this.resolve(); 
+      document.addEventListener(navigateEventName, () => {
+        this.resolve()
+      }); 
     }
 
     get template() {
@@ -153,7 +166,7 @@ createElement(
       if (!this.params || !Object.keys(this.params).length || !this.pageTag) {
         return '';
       }
-      return ` ${Object.entries(this.params).map(([name, value]) => `${name}="${value}"`).join(' ')}`;
+      return ` ${(Object as any).entries(this.params).map(([name, value]: [string, any]) => `${name}="${value}"`).join(' ')}`;
     }
 
     /**
