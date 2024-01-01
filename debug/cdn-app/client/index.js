@@ -48,6 +48,7 @@ MiniFw.Router.init({
   routes: {
     '/': 'todo-list',
     '/calendar': 'calendar-page',
+    '/shadow': 'shadow-dom-page',
     '/calendar/:name': {
       tagName: 'calendar-page',
       routes: {
@@ -78,6 +79,8 @@ MiniFw.createElement(
         <button data-router-link href="/">To Do list</button>
         <a href="/calendar/krista">Krista's Calendar</a>
         <a href="/calendar/joe/monday">Joe's Monday Calendar</a>
+        <a href="/shadow">Shadow</a>
+
         <router-outlet></router-outlet>
       `;
     }
@@ -110,6 +113,20 @@ MiniFw.createElement(
       return `
         <h1>404</h1>
         <h2>Not found</h2>
+      `;
+    }
+  }
+);
+
+MiniFw.createElement(
+  class extends MiniFw.AppElement {
+    static tagName = 'shadow-dom-page'
+    static shadowDom = true;
+
+    get template() {
+      return `
+        <h1>This is the Shadow Dom Page</h1>
+        <h2>You cannot style inside here!</h2>
       `;
     }
   }

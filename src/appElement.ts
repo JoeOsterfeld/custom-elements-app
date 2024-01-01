@@ -4,10 +4,15 @@ import {createProxy} from './elementValueProxy';
 export abstract class AppElement extends HTMLElement {
   static tagName: string = 'app-element'
   static observedAttributes: string[] = [];
+  static shadowDom = false;
   _eventListenerParams: any[][] = [];
   _stateListenerIds: any[] = [];
   _proxyValues: any = {};
   _renderNum = 0;
+
+  get innerHtmlTarget(): HTMLElement | ShadowRoot {
+    return this.shadowRoot || this;
+  }
 
   get template() {
     return '';
@@ -18,6 +23,9 @@ export abstract class AppElement extends HTMLElement {
   }
 
   connectedCallback() {
+    if ((this.constructor as any).shadowDom) {
+      this.attachShadow({ mode: "open" });
+    }
     for (const attrName of (this.constructor as any).observedAttributes) {
       this._initObservedAttribute(attrName);
     }
@@ -103,7 +111,7 @@ export abstract class AppElement extends HTMLElement {
     if (window.Sanitizer) {
       (this as any).setHTML(html); // TODO: Test this
     } else {
-      this.innerHTML = window.DOMPurify.sanitize(html, {
+      this.innerHtmlTarget.innerHTML = window.DOMPurify.sanitize(html, {
         WHOLE_DOCUMENT: true, // Important. Workaround for this: https://github.com/cure53/DOMPurify/issues/37
         FORCE_BODY: false,
         CUSTOM_ELEMENT_HANDLING: {
