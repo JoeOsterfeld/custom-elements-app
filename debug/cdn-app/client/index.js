@@ -145,15 +145,6 @@ MiniFw.createElement(
       });
     }
 
-    renderedCallback() {
-      this.queryListener('.add', 'click', (event) => {
-        const name = prompt('Enter item name');
-        if (name) {
-          this.stateDispatch('addItem', { name, completed: false, store: { name: 'Kroger' } });
-        }
-      });
-    }
-
     get template() {
       if (!this.items) {
         return '';
@@ -166,8 +157,15 @@ MiniFw.createElement(
           </h4>
         </div>
         ${this.templateMap(this.items, (_item, index) => `<todo-item index="${index}"></todo-item>`)}
-        <button class="add">Add Item</button>
+        <button class="add" onclick="el.handleAdd(event)">Add Item</button>
       </div>`
+    }
+
+    handleAdd() {
+      const name = prompt('Enter item name');
+      if (name) {
+        this.stateDispatch('addItem', { name, completed: false, store: { name: 'Kroger' } });
+      }
     }
   }
 );
@@ -190,35 +188,34 @@ MiniFw.createElement(
       }, this.indexNum);
     }
 
-    renderedCallback() {
-      this.queryListener('input', 'change', (event) => {
-        this.stateDispatch('setItem', this.indexNum, { ...this.item, completed: event.target.checked });
-      });
-
-      this.queryListener('.remove', 'click', () => {
-        this.stateDispatch('removeItem', this.indexNum);
-      });
-      this.queryListener('.change-store', 'click', () => {
-        const otherStoreName = 'Giant Eagle';
-        this.item.store.name = this.item.store.name === otherStoreName ? 'Kroger' : otherStoreName;
-      });
-    }
-
     get template() {
       if (!this.item) {
         return '';
       }
       const { name, completed, store } = this.item;
       return `<div class="todo-item">
-      <input type="checkbox" data-name="${name}" ${completed ? 'checked="true"' : ''}"/>
+      <input onchange="el.handleCheck(event)" type="checkbox" data-name="${name}" ${completed ? 'checked="true"' : ''}"/>
       <h3>
         ${name}
         ${completed ? 'DONE!' : ''}  
       </h3>
       <p>Store: ${store.name}</p>
-      <button class="change-store" style="float: right;">Change Store</button>
-      <button class="remove" style="float: right;">Remove Item</button>
+      <button onclick="el.handleChangeStore(event)" class="change-store" style="float: right;">Change Store</button>
+      <button onclick="el.handleRemove(event)" class="remove" style="float: right;">Remove Item</button>
     </div>`
+    }
+
+    handleCheck(event) {
+      this.stateDispatch('setItem', this.indexNum, { ...this.item, completed: event.target.checked });
+    }
+
+    handleRemove() {
+      this.stateDispatch('removeItem', this.indexNum);
+    }
+
+    handleChangeStore() {
+      const otherStoreName = 'Giant Eagle';
+      this.item.store.name = this.item.store.name === otherStoreName ? 'Kroger' : otherStoreName;
     }
   }
 );
@@ -272,10 +269,17 @@ MiniFw.createElement(
     static observedAttributes = ['day'];
     static tagName = 'calendar-day';
 
+    get uiDay() {
+      if (!this.day) {
+        return '';
+      }
+      return this.day[0].toUpperCase() + this.day.substring(1);
+    }
+
     get template() {
       return `<div>
         Calendar day!
-        <h2>${this.day}</h2>
+        <h2>${this.uiDay}</h2>
       </div>`
     }
   }

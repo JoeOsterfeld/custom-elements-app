@@ -2,10 +2,10 @@ import {AppState} from './appState';
 import {createProxy} from './elementValueProxy';
 
 export abstract class AppElement extends HTMLElement {
+  static elementType = 'MiniFwAppElement';
   static tagName: string = 'app-element'
   static observedAttributes: string[] = [];
   static shadowDom = false;
-  _eventListenerParams: any[][] = [];
   _stateListenerIds: any[] = [];
   _proxyValues: any = {};
   _renderNum = 0;
@@ -34,7 +34,6 @@ export abstract class AppElement extends HTMLElement {
   }
 
   disconnectedCallback() {
-    this._removeEventListeners();
     for (const id of this._stateListenerIds) {
       AppState.removeListener(id);
     }
@@ -45,13 +44,6 @@ export abstract class AppElement extends HTMLElement {
 
   templateMap = (arrayValue: any, mapFn: any) => {
     return arrayValue.map(mapFn).join('');
-  }
-
-  queryListener(query: string, eventName: string, handler: (event: Event) => any) {
-    this.querySelectorAll(query).forEach(el => {
-      this._eventListenerParams.push([el, eventName, handler]);
-      el.addEventListener(eventName, handler);
-    });
   }
 
   stateListener(selectorName: string, callback: any, ...args: any[]) {
@@ -69,14 +61,7 @@ export abstract class AppElement extends HTMLElement {
     if (templateHtml !== this.innerHTML) {
       this._renderNum++;
       this.setSanitizedHTML(templateHtml, this._renderNum);
-      this._removeEventListeners();
       this.renderedCallback();
-    }
-  }
-
-  _removeEventListeners() {
-    for (const [el, eventName, handler] of this._eventListenerParams) {
-      el.removeEventListener(eventName, handler);
     }
   }
 
@@ -114,6 +99,72 @@ export abstract class AppElement extends HTMLElement {
       this.innerHtmlTarget.innerHTML = window.DOMPurify.sanitize(html, {
         WHOLE_DOCUMENT: true, // Important. Workaround for this: https://github.com/cure53/DOMPurify/issues/37
         FORCE_BODY: false,
+        ADD_ATTR: [
+          // Form events
+          'onblur',
+          'oncontextmenu',
+          'onfocus',
+          'oninput',
+          'oninvalid',
+          'onreset',
+          'onsearch',
+          'onselect',
+          'onsubmit',
+          'onchange',
+          // Keyboard events
+          'onkeydown',
+          'onkeypress',
+          'onkeyup',
+          // Mouse events
+          'onclick',
+          'ondblclick',
+          'onmousedown',
+          'onmousemove',
+          'onmouseout',
+          'onmouseover',
+          'onmouseup',
+          'onmousewheel',
+          'onwheel',
+          // Drag events
+          'ondrag',
+          'ondragend',
+          'ondragenter',
+          'ondragleave',
+          'ondragover',
+          'ondragstart',
+          'ondrop',
+          'onscroll',
+          // Clipboard events
+          'oncopy',
+          'oncut',
+          'onpaste',
+          // Media events
+          'onabort',
+          'oncanplay',
+          'oncanplaythrough',
+          'oncuechange',
+          'ondurationchange',
+          'onemptied',
+          'onended',
+          'onerror',
+          'onloadeddata',
+          'onloadedmetadata',
+          'onloadstart',
+          'onpause',
+          'onplay',
+          'onplaying',
+          'onprogress',
+          'onratechange',
+          'onseeked',
+          'onseeking',
+          'onstalled',
+          'onsuspend',
+          'ontimeupdate',
+          'onvolumechange',
+          'onwaiting',
+          // Misc
+          'ontoggle'
+        ],
         CUSTOM_ELEMENT_HANDLING: {
           tagNameCheck: (_tagName: string) => true, // allow all tags starting with "foo-"
           attributeNameCheck: (_attr: string) => true, // allow all attributes containing "baz"
