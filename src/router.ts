@@ -155,7 +155,7 @@ createElement(
       }); 
     }
 
-    get template() {
+    render() {
       return this.pageTag ? `<${this.pageTag}${this._paramsString}></${this.pageTag}>` : '';
     }
 

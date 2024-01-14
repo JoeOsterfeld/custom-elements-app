@@ -64,7 +64,7 @@ MiniFw.createElement(
   class MainAppElement extends MiniFw.AppElement {
     static tagName = 'app-element'
 
-    get template() {
+    render() {
       return `
         <style>
           a, button {
@@ -94,7 +94,7 @@ MiniFw.createElement(
 
     name;
 
-    get template() {
+    render() {
       return `
         <h1>${this.name ? `${this.name}'s calendar` : `Calendar page`}</h1>
         <time-display></time-display>
@@ -109,7 +109,7 @@ MiniFw.createElement(
   class extends MiniFw.AppElement {
     static tagName = 'not-found-page'
 
-    get template() {
+    render() {
       return `
         <h1>404</h1>
         <h2>Not found</h2>
@@ -123,7 +123,7 @@ MiniFw.createElement(
     static tagName = 'shadow-dom-page'
     static shadowDom = true;
 
-    get template() {
+    render() {
       return `
         <h1>This is the Shadow Dom Page</h1>
         <h2>You cannot style inside here!</h2>
@@ -145,7 +145,7 @@ MiniFw.createElement(
       });
     }
 
-    get template() {
+    render() {
       if (!this.items) {
         return '';
       }
@@ -188,7 +188,7 @@ MiniFw.createElement(
       }, this.indexNum);
     }
 
-    get template() {
+    render() {
       if (!this.item) {
         return '';
       }
@@ -239,7 +239,7 @@ MiniFw.createElement(
       clearInterval(this.intervalId);
     }
 
-    get template() {
+    render() {
       return this.time;
     }
 
@@ -256,7 +256,7 @@ MiniFw.createElement(
     static observedAttributes = [];
     static tagName = 'simple-template';
 
-    get template() {
+    render() {
       return `<div>
         <p>This is a component with a simple template.</p>
       </div>`
@@ -276,7 +276,7 @@ MiniFw.createElement(
       return this.day[0].toUpperCase() + this.day.substring(1);
     }
 
-    get template() {
+    render() {
       return `<div>
         Calendar day!
         <h2>${this.uiDay}</h2>

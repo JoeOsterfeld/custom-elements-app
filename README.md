@@ -34,7 +34,7 @@ Import the package of the CDN, and create your first component:
             static tagName = 'grocery-list';
             items = ['Milk', 'Bread', 'Eggs', 'Apples'];
 
-            get template() {
+            render() {
                 return `
                     <h3>Grocery List</h3>
                     <ul>

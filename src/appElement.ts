@@ -14,7 +14,7 @@ export abstract class AppElement extends HTMLElement {
     return this.shadowRoot || this;
   }
 
-  get template() {
+  render() {
     return '';
   }
 
@@ -57,7 +57,7 @@ export abstract class AppElement extends HTMLElement {
   }
 
   async updateTemplate() {
-    const templateHtml = this.template;
+    const templateHtml = this.render();
     if (templateHtml !== this.innerHTML) {
       this._renderNum++;
       this.setSanitizedHTML(templateHtml, this._renderNum);
