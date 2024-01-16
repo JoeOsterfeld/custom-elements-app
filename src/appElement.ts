@@ -9,6 +9,7 @@ export abstract class AppElement extends HTMLElement {
   _stateListenerIds: any[] = [];
   _proxyValues: any = {};
   _renderNum = 0;
+  _hasInitialized = false;
 
   get innerHtmlTarget(): HTMLElement | ShadowRoot {
     return this.shadowRoot || this;
@@ -24,11 +25,12 @@ export abstract class AppElement extends HTMLElement {
 
   connectedCallback() {
     if ((this.constructor as any).shadowDom) {
-      this.attachShadow({ mode: "open" });
+      this.attachShadow({ mode: 'open' });
     }
     for (const attrName of (this.constructor as any).observedAttributes) {
       this._initObservedAttribute(attrName);
     }
+    this._hasInitialized = true;
     this.updateTemplate();
     this.initializedCallback();
   }
@@ -58,7 +60,7 @@ export abstract class AppElement extends HTMLElement {
 
   async updateTemplate() {
     const templateHtml = this.render();
-    if (templateHtml !== this.innerHTML) {
+    if (this._hasInitialized && templateHtml !== this.innerHTML) {
       this._renderNum++;
       this.setSanitizedHTML(templateHtml, this._renderNum);
       this.renderedCallback();
