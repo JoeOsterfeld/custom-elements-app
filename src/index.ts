@@ -11,4 +11,4 @@ export default {
   AppState,
   createElement,
   Router
-}
+};

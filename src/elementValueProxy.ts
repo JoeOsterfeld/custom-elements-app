@@ -14,7 +14,7 @@ const getProxy = (value: any, config: any) => {
   );
 }
 
-const getProxyConfig = (updateTemplate: any) => ({
+const getProxyConfig = (callback: any) => ({
   get: (target: any, propertyName: string) => {
     let targetValue = target[propertyName];
     // Array functions are just properties which are accessed via get.
@@ -22,35 +22,33 @@ const getProxyConfig = (updateTemplate: any) => ({
     if (Array.isArray(target) && targetValue instanceof Function) {
       if (propertyName === 'push') {
         targetValue = (...args: any[]) => {
-          const endVal = target[propertyName](...args.map(arg => getProxy(arg, getProxyConfig(updateTemplate))));
-          updateTemplate();
-          return endVal;
+          callback();
+          return target[propertyName](...args);
         }
       }
       if (propertyName === 'splice') {
         targetValue = (...args: any[]) => {
           const endVal = (target[propertyName] as any)(...args);
-          updateTemplate();
+          callback();
           return endVal;
         }
       }
       if (propertyName === 'fill') {
         targetValue = (...args: any[]) => {
-          args[0] = getProxy(args[0], getProxyConfig(updateTemplate));
           const endVal = (target[propertyName] as any)(...args);
-          updateTemplate();
+          callback();
           return endVal;
         }
       }
     }
     if (typeof targetValue === 'object' && targetValue !== null) {
-      return getProxy(targetValue, getProxyConfig(updateTemplate));
+      return getProxy(targetValue, getProxyConfig(callback));
     }
     return targetValue;
   },
   set: (target: any, propertyName: string, newValue: any) => {
     target[propertyName] = newValue;
-    updateTemplate();
+    callback();
     return true;
   },
   defineProperty: (target: any, property: string, attributes: any) => {

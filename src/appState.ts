@@ -1,25 +1,40 @@
 class AppStateKlass {
-  _listeners: { [name: string]: [string, any] } = {};
-  _state = {};
-  selectors: any = {};
-  actions: any = {};
+  _listeners: { [name: string]: [string, any, any[]] } = {};
+  _state: any = {};
+  _selectors: any = {};
+  _actions: any = {};
+
+  initialize(initialState: any = {}) {
+    this._listeners = {};
+    this._selectors = {};
+    this._actions = {};
+    this._state = initialState;
+  }
+
+  getState() {
+    return {...this._state};
+  }
 
   createAction(eventName: string, mutatorFn: any) {
-    this.actions[eventName] = mutatorFn;
+    this._actions[eventName] = mutatorFn;
   }
 
   createSelector(selectorName: string, selectorFn: any) {
-    if (this.selectors[selectorName]) {
+    if (this._selectors[selectorName]) {
       throw new Error(`AppState, createSelector: Selector name "${selectorName}" already exists`);
     }
-    this.selectors[selectorName] = selectorFn;
+    this._selectors[selectorName] = selectorFn;
   }
 
-  listen(selectorName: string, callback: any, ...callbackArgs: any[]) {
-    callback(this.selectors[selectorName](this._state, ...callbackArgs));
+  listen(selectorName: string, callback: any, ...selectorArgs: any[]) {
+    callback(this._selectors[selectorName](this._state, ...selectorArgs));
     const listenerId = this._getUniqueId();
-    this._listeners[listenerId] = [selectorName, callback];
+    this._listeners[listenerId] = [selectorName, callback, selectorArgs];
     return listenerId;
+  }
+
+  select(selectorName: string, ...selectorArgs: any[]) {
+    return this._selectors[selectorName](this._state, ...selectorArgs);
   }
 
   removeListener(listenerId: string) {
@@ -29,9 +44,9 @@ class AppStateKlass {
   }
 
   dispatch(actionName: string, ...args: any[]) {
-    this._state = this.actions[actionName](this._state, ...args);
-    for (const [selectorName, callback] of (Object as any).values(this._listeners)) {
-      callback(this.selectors[selectorName](this._state));
+    this._state = this._actions[actionName](this._state, ...args);
+    for (const [selectorName, callback, additionalArgs] of (Object as any).values(this._listeners)) {
+      callback(this._selectors[selectorName](this._state, ...additionalArgs));
     }
     return this._state;
   }

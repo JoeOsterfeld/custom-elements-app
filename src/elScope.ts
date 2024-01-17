@@ -5,9 +5,12 @@ const fnHandler = {
     // Gets the next MiniFw app element up the tree and call the function on it
     let appEl = event.target;
     while (appEl && appEl.constructor?.elementType !== AppElement.elementType) {
-      appEl = appEl.parentElement;
+      appEl = appEl.parentElement || appEl.parentNode;
+      if (appEl.host) {
+        // If the parent is a shadowDom root, climb up to its host
+        appEl = appEl.host;
+      }
     }
-
     return appEl[fn()](event, ...otherArgs);
   }
 };

@@ -1,5 +1,6 @@
 import {AppState} from './appState';
 import {createProxy} from './elementValueProxy';
+import DOMPurify from 'dompurify';
 
 export abstract class AppElement extends HTMLElement {
   static elementType = 'MiniFwAppElement';
@@ -8,7 +9,6 @@ export abstract class AppElement extends HTMLElement {
   static shadowDom = false;
   _stateListenerIds: any[] = [];
   _proxyValues: any = {};
-  _renderNum = 0;
   _hasInitialized = false;
 
   get innerHtmlTarget(): HTMLElement | ShadowRoot {
@@ -31,7 +31,7 @@ export abstract class AppElement extends HTMLElement {
       this._initObservedAttribute(attrName);
     }
     this._hasInitialized = true;
-    this.updateTemplate();
+    this.doRender();
     this.initializedCallback();
   }
 
@@ -58,25 +58,26 @@ export abstract class AppElement extends HTMLElement {
     AppState.dispatch(actionName, ...args);
   }
 
-  async updateTemplate() {
-    const templateHtml = this.render();
-    if (this._hasInitialized && templateHtml !== this.innerHTML) {
-      this._renderNum++;
-      this.setSanitizedHTML(templateHtml, this._renderNum);
-      this.renderedCallback();
+  doRender() {
+    if (this._hasInitialized) {
+      const templateHtml = this.render();
+      if (templateHtml !== this.innerHTML) {
+        this.setSanitizedHTML(templateHtml);
+        this.renderedCallback();
+      }
     }
   }
 
   _initObservedAttribute(attrName: string) {
-    const initialVal: any = (this as any)[attrName];
+    const value: any = (this as any)[attrName];
     Object.defineProperty(this, attrName, {
       get: () => this._proxyValues[attrName] as any,
       set: (value) => {
-        this._proxyValues[attrName] = createProxy(value, () => this.updateTemplate());
-        this.updateTemplate();
+        this._proxyValues[attrName] = createProxy(value, () => this.doRender());
+        this.doRender();
       }
     });
-    (this as any)[attrName] = initialVal;
+    (this as any)[attrName] = value;
   }
 
   /**
@@ -84,21 +85,11 @@ export abstract class AppElement extends HTMLElement {
    * If Sanitizer not present, imports the DomPurify pkg
    * over the CDN.
    */
-  async setSanitizedHTML(html: string, renderNum: number) {
-    if (!window.Sanitizer && !window.DOMPurify) {
-      /**
-       * Load DOMPurify package on demand when not present
-       */
-      window.DOMPurify = (await import('https://cdn.jsdelivr.net/npm/dompurify@3.0.6/+esm' as any)).default;
-    }
-    if (renderNum !== this._renderNum) {
-      // Keep track of render number so initial load doesn't get mixed with subsequent ones
-      return;
-    }
+  setSanitizedHTML(html: string) {
     if (window.Sanitizer) {
       (this as any).setHTML(html); // TODO: Test this
     } else {
-      this.innerHtmlTarget.innerHTML = window.DOMPurify.sanitize(html, {
+      this.innerHtmlTarget.innerHTML = DOMPurify.sanitize(html, {
         WHOLE_DOCUMENT: true, // Important. Workaround for this: https://github.com/cure53/DOMPurify/issues/37
         FORCE_BODY: false,
         ADD_ATTR: [

@@ -14,7 +14,7 @@ export interface RouterConfig {
 };
 
 class RouterKlass {
-  config: RouterConfig = {}; // Route Config. TODO: Type this
+  config: RouterConfig = {};
   pathHistory = []; // String array of previous paths navigated to
   routeHierarchy: RouteHierarchyItem[] | undefined = []; // Array of configuration of router outlets from root down.
 
@@ -137,12 +137,12 @@ createElement(
         return this._parentRouterOutlets;
       }
       let parentOutlets = [];
-      let el = this.parentElement;
+      let el: any = this._getParent(this);
       while (el) {
         if (el.tagName === this.tagName) {
           parentOutlets.push(el);
         }
-        el = el.parentElement;
+        el = this._getParent(el);
       }
       this._parentRouterOutlets = parentOutlets;
       return parentOutlets;
@@ -176,13 +176,21 @@ createElement(
     resolve() {
       if (Router.routeHierarchy) {
         const currentRoute = Router.routeHierarchy[this.parentRouterOutlets.length];
-        if (currentRoute) {
+        if (currentRoute && currentRoute.tag) {
           this.params = currentRoute.params;
           this.pageTag = currentRoute.tag;
         }
       }
     }
-  }
+
+    _getParent(el: any) {
+      let parent = el.parentElement || el.parentNode;
+      if (parent?.host) {
+        parent = parent.host;
+      }
+      return parent;
+    }
+  } 
 )
 
 export const Router = new RouterKlass();
