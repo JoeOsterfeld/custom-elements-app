@@ -60,12 +60,24 @@ MiniFw.Router.init({
   notFoundTag: 'not-found-page'
 });
 
+const pageTitleChangeEventName = 'pagetitlechange';
+const dispatchPageTitleEv = (el, title) => {
+  el.dispatchEvent(new CustomEvent(pageTitleChangeEventName, {detail: title, bubbles: true}));
+}
+
 MiniFw.createElement(
   class MainAppElement extends MiniFw.AppElement {
     static tagName = 'app-element'
+    static observedAttributes = ['title'];
+    title = '';
+
+    pageTitleChangeListener = this.eventListener('router-outlet', pageTitleChangeEventName, (event) => {
+      this.title = event.detail;
+    });
 
     render() {
       return `
+        <h1>${this.title}</h1>
         <style>
           a, button {
             margin: 6px;
@@ -94,6 +106,10 @@ MiniFw.createElement(
 
     name;
 
+    initializedCallback() {
+      dispatchPageTitleEv(this, 'Calendar');
+    }
+
     render() {
       return `
         <h1>${this.name ? `${this.name}'s calendar` : `Calendar page`}</h1>
@@ -109,6 +125,10 @@ MiniFw.createElement(
   class extends MiniFw.AppElement {
     static tagName = 'not-found-page'
 
+    initializedCallback() {
+      dispatchPageTitleEv(this, 'Not Found Page');
+    }
+
     render() {
       return `
         <h1>404</h1>
@@ -122,6 +142,10 @@ MiniFw.createElement(
   class extends MiniFw.AppElement {
     static tagName = 'shadow-dom-page'
     static shadowDom = true;
+
+    initializedCallback() {
+      dispatchPageTitleEv(this, 'Shadow DOM Element Page');
+    }
 
     render() {
       return `
@@ -140,6 +164,7 @@ MiniFw.createElement(
     items = [];
 
     initializedCallback() {
+      dispatchPageTitleEv(this, 'To Do List');
       this.stateListener('items', (items) => {
         this.items = items || [];
       });
@@ -157,16 +182,16 @@ MiniFw.createElement(
           </h4>
         </div>
         ${this.templateMap(this.items, (_item, index) => `<todo-item index="${index}"></todo-item>`)}
-        <button class="add" onclick="el.handleAdd(event)">Add Item</button>
+        <button class="add">Add Item</button>
       </div>`
     }
 
-    handleAdd() {
+    addItemListener = this.eventListener('.add', 'click', () => {
       const name = prompt('Enter item name');
       if (name) {
         this.stateDispatch('addItem', { name, completed: false, store: { name: 'Kroger' } });
       }
-    }
+    });
   }
 );
 
@@ -194,29 +219,29 @@ MiniFw.createElement(
       }
       const { name, completed, store } = this.item;
       return `<div class="todo-item">
-      <input onchange="el.handleCheck(event)" type="checkbox" data-name="${name}" ${completed ? 'checked="true"' : ''}"/>
+      <input type="checkbox" data-name="${name}" ${completed ? 'checked="true"' : ''}"/>
       <h3>
         ${name}
         ${completed ? 'DONE!' : ''}  
       </h3>
       <p>Store: ${store.name}</p>
-      <button onclick="el.handleChangeStore(event)" class="change-store" style="float: right;">Change Store</button>
-      <button onclick="el.handleRemove(event)" class="remove" style="float: right;">Remove Item</button>
+      <button class="change-store" style="float: right;">Change Store</button>
+      <button class="remove" style="float: right;">Remove Item</button>
     </div>`
     }
 
-    handleCheck(event) {
+    checkBoxListener = this.eventListener('input', 'change', () => {
       this.stateDispatch('setItem', this.indexNum, { ...this.item, completed: event.target.checked });
-    }
+    });
 
-    handleRemove() {
+    removeItemListener = this.eventListener('.remove', 'click', () => {
       this.stateDispatch('removeItem', this.indexNum);
-    }
+    });
 
-    handleChangeStore() {
+    changeStoreListener = this.eventListener('.change-store', 'click', () => {
       const otherStoreName = 'Giant Eagle';
       this.item.store.name = this.item.store.name === otherStoreName ? 'Kroger' : otherStoreName;
-    }
+    });
   }
 );
 
