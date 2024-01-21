@@ -1,5 +1,5 @@
 // Sets all items
-MiniFw.AppState.createAction('setItems', (state, items) => {
+Min.AppState.createAction('setItems', (state, items) => {
   return {
     ...state,
     items
@@ -7,7 +7,7 @@ MiniFw.AppState.createAction('setItems', (state, items) => {
 });
 
 // Sets a single item using its index
-MiniFw.AppState.createAction('setItem', (state, index, item) => {
+Min.AppState.createAction('setItem', (state, index, item) => {
   const items = [...state.items];
   items[index] = item;
   return {
@@ -17,7 +17,7 @@ MiniFw.AppState.createAction('setItem', (state, index, item) => {
 });
 
 // Appends a new item to this list
-MiniFw.AppState.createAction('addItem', (state, item) => {
+Min.AppState.createAction('addItem', (state, item) => {
   return {
     ...state,
     items: state.items.concat([item])
@@ -25,7 +25,7 @@ MiniFw.AppState.createAction('addItem', (state, item) => {
 });
 
 // Removes and item
-MiniFw.AppState.createAction('removeItem', (state, index) => {
+Min.AppState.createAction('removeItem', (state, index) => {
   const items = [...state.items]
   items.splice(index, 1)
   return {
@@ -35,16 +35,16 @@ MiniFw.AppState.createAction('removeItem', (state, index) => {
 });
 
 // Get all items
-MiniFw.AppState.createSelector('items', (state) => state.items || []);
+Min.AppState.createSelector('items', (state) => state.items || []);
 // Get a single item by its index
-MiniFw.AppState.createSelector('item', (state, itemIndex) => (state.items || [])[itemIndex]);
+Min.AppState.createSelector('item', (state, itemIndex) => (state.items || [])[itemIndex]);
 
 // Dispatch the initial database state
-MiniFw.AppState.dispatch('setItems', 'Milk Bread Eggs Apples Oranges'.split(' ').map(name => ({
+Min.AppState.dispatch('setItems', 'Milk Bread Eggs Apples Oranges'.split(' ').map(name => ({
   name, completed: false, store: { name: 'Kroger' }
 })));
 
-MiniFw.Router.init({
+Min.Router.init({
   routes: {
     '/': 'todo-list',
     '/calendar': 'calendar-page',
@@ -65,8 +65,8 @@ const dispatchPageTitleEv = (el, title) => {
   el.dispatchEvent(new CustomEvent(pageTitleChangeEventName, {detail: title, bubbles: true}));
 }
 
-MiniFw.createElement(
-  class MainAppElement extends MiniFw.AppElement {
+Min.createElement(
+  class MainAppElement extends Min.AppElement {
     static tagName = 'app-element'
     static observedAttributes = ['title'];
     title = '';
@@ -99,8 +99,8 @@ MiniFw.createElement(
   }
 );
 
-MiniFw.createElement(
-  class extends MiniFw.AppElement {
+Min.createElement(
+  class extends Min.AppElement {
     static tagName = 'calendar-page'
     static observedAttributes = ['name'];
 
@@ -121,8 +121,8 @@ MiniFw.createElement(
   }
 );
 
-MiniFw.createElement(
-  class extends MiniFw.AppElement {
+Min.createElement(
+  class extends Min.AppElement {
     static tagName = 'not-found-page'
 
     initializedCallback() {
@@ -138,8 +138,8 @@ MiniFw.createElement(
   }
 );
 
-MiniFw.createElement(
-  class extends MiniFw.AppElement {
+Min.createElement(
+  class extends Min.AppElement {
     static tagName = 'shadow-dom-page'
     static shadowDom = true;
 
@@ -156,8 +156,8 @@ MiniFw.createElement(
   }
 );
 
-MiniFw.createElement(
-  class TodoAppElement extends MiniFw.AppElement {
+Min.createElement(
+  class TodoAppElement extends Min.AppElement {
     static observedAttributes = ['items'];
     static tagName = 'todo-list';
 
@@ -195,8 +195,8 @@ MiniFw.createElement(
   }
 );
 
-MiniFw.createElement(
-  class TodoItemElement extends MiniFw.AppElement {
+Min.createElement(
+  class TodoItemElement extends Min.AppElement {
     static observedAttributes = ['index', 'item'];
     static tagName = 'todo-item';
 
@@ -245,8 +245,8 @@ MiniFw.createElement(
   }
 );
 
-MiniFw.createElement(
-  class TimeDisplayElement extends MiniFw.AppElement {
+Min.createElement(
+  class TimeDisplayElement extends Min.AppElement {
     static observedAttributes = ['time'];
     static tagName = 'time-display';
     intervalId;
@@ -276,8 +276,8 @@ MiniFw.createElement(
   }
 );
 
-MiniFw.createElement(
-  class TimeElement extends MiniFw.AppElement {
+Min.createElement(
+  class TimeElement extends Min.AppElement {
     static observedAttributes = [];
     static tagName = 'simple-template';
 
@@ -289,8 +289,8 @@ MiniFw.createElement(
   }
 );
 
-MiniFw.createElement(
-  class CalendarDay extends MiniFw.AppElement {
+Min.createElement(
+  class CalendarDay extends Min.AppElement {
     static observedAttributes = ['day'];
     static tagName = 'calendar-day';
 

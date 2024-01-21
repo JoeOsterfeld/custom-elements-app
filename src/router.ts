@@ -1,7 +1,7 @@
 import { AppElement } from "./appElement";
 import { createElement } from "./createElement";
 
-const navigateEventName = 'MiniFw.navigate';
+const navigateEventName = 'Min.navigate';
 
 export interface RouteHierarchyItem { path: string; tag: string; params: any }
 

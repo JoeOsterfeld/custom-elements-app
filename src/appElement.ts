@@ -3,7 +3,7 @@ import {createProxy} from './elementValueProxy';
 import DOMPurify from 'dompurify';
 
 export abstract class AppElement extends HTMLElement {
-  static elementType = 'MiniFwAppElement';
+  static elementType = 'MinFwAppElement';
   static tagName: string = 'app-element'
   static observedAttributes: string[] = [];
   static shadowDom = false;

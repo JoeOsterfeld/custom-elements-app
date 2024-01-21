@@ -11,9 +11,9 @@ const formats = ['esm', 'umd', 'cjs'];
 module.exports = formats.map(format => ({
   input: 'src/index.ts',
   output: {
-    file: `dist/minifw.${format}.js`,
+    file: `dist/minfw.${format}.js`,
     format,
-    name: 'MiniFw',
+    name: 'Min',
     sourcemap: true,
   },
   plugins: [

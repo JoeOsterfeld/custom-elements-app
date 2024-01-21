@@ -2,7 +2,7 @@ import { AppElement } from './appElement';
 
 const fnHandler = {
   apply: (fn: any, _proxy: any, [event, ...otherArgs]: any[]) => {
-    // Gets the next MiniFw app element up the tree and call the function on it
+    // Gets the next MinFw app element up the tree and call the function on it
     let appEl = event.target;
     while (appEl && appEl.constructor?.elementType !== AppElement.elementType) {
       appEl = appEl.parentElement || appEl.parentNode;

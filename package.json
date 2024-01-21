@@ -1,16 +1,16 @@
 {
-  "name": "minifw",
+  "name": "minfw",
   "version": "1.0.0",
   "description": "",
-  "main": "dist/minifw.esm.js",
-  "browser": "dist/minifw.umd.js",
-  "homepage": "https://github.com/JoeOsterfeld/minifw#readme",
+  "main": "dist/minfw.esm.js",
+  "browser": "dist/minfw.umd.js",
+  "homepage": "https://github.com/JoeOsterfeld/minfw#readme",
   "bugs": {
-    "url": "https://github.com/JoeOsterfeld/minifw/issues"
+    "url": "https://github.com/JoeOsterfeld/minfw/issues"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/JoeOsterfeld/minifw"
+    "url": "https://github.com/JoeOsterfeld/minfw"
   },
   "scripts": {
     "start:cdn-app": "debug/cdn-app/start",
