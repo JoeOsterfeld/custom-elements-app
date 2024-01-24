@@ -33,7 +33,7 @@ describe('AppElement', () => {
     }
   };
   class GroceryListClass extends AppElement {
-    static observedAttributes: string[] = ['items'];
+    static observedAttributes: string[] = ['items', 'store-name'];
     static tagName = 'grocery-list';
     items = ['Milk', 'Bread', 'Eggs', 'Apples'].map(name => ({
       name,
@@ -64,6 +64,13 @@ describe('AppElement', () => {
   it('should create element', () => {
     const el = appendEl(SimpleElClass);
     expect(el).toBeTruthy();
+  });
+
+  it('should convert attr names to prop names', () => {
+    const el = appendEl(GroceryListClass);
+    el.setAttribute('store-name', 'Kroger');
+    expect(el.storeName).toBeTruthy();
+    expect(el.storeName).toBe('Kroger');
   });
 
   it('should render', () => {
@@ -106,6 +113,13 @@ describe('AppElement', () => {
     el.last = 'Smith'
     expect(renderSpy).toHaveBeenCalledTimes(3);
     expect(el.innerHTML).toBe(`<p>Name:</p><p>John Smith</p>`);
+  });
+
+  it('should render on converted attr name change', () => {
+    const el = appendEl(GroceryListClass);
+    const renderSpy = jest.spyOn(el, 'render');
+    el.setAttribute('store-name', 'Foo');
+    expect(renderSpy).toHaveBeenCalledTimes(1);
   });
 
   it('should render on complex observed attribute change', () => {

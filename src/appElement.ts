@@ -15,16 +15,22 @@ export abstract class AppElement extends HTMLElement {
   _eventListeners: [Element, string, any][] = [];
   _lastUsedHtml: string;
 
+  __cssTagHtml: string;
+
   get innerHtmlTarget(): HTMLElement | ShadowRoot {
     return this.shadowRoot || this;
   }
 
   get _cssTagHtml() {
+    if (this.__cssTagHtml) {
+      return this.__cssTagHtml
+    }
     let css = '';
     if ((this.constructor as any).css) {
       css = `<style>${(this.constructor as any).css}</style>`;
     }
-    return css;
+    this.__cssTagHtml = css;
+    return this.__cssTagHtml;
   }
 
   render() {
@@ -32,7 +38,8 @@ export abstract class AppElement extends HTMLElement {
   }
 
   attributeChangedCallback(name: string, _oldValue: any, newValue: any) {
-    (this as any)[name] = newValue;
+    const propName = this._attrNameToPropName(name);
+    (this as any)[propName] = newValue;
   }
 
   connectedCallback() {
@@ -88,15 +95,16 @@ export abstract class AppElement extends HTMLElement {
   }
 
   _initObservedAttribute(attrName: string) {
-    const value: any = (this as any)[attrName];
-    Object.defineProperty(this, attrName, {
-      get: () => this._proxyValues[attrName] as any,
+    const propName = this._attrNameToPropName(attrName);
+    const value: any = (this as any)[propName];
+    Object.defineProperty(this, propName, {
+      get: () => this._proxyValues[propName] as any,
       set: (value) => {
-        this._proxyValues[attrName] = createProxy(value, () => this.doRender());
+        this._proxyValues[propName] = createProxy(value, () => this.doRender());
         this.doRender();
       }
     });
-    (this as any)[attrName] = value;
+    (this as any)[propName] = value;
   }
 
   // Update event listeners after render
@@ -139,5 +147,17 @@ export abstract class AppElement extends HTMLElement {
         }
       });
     }
+  }
+  
+  /**
+   * Convert attribute names to camelcase for use on element
+   * @param {string} attrName - attribute name
+   * @returns {string}
+   */
+  _attrNameToPropName(attrName: string) {
+    if (!attrName.includes('-')) {
+      return attrName;
+    }
+    return attrName.replace(/-./g, x=>x[1].toUpperCase())
   }
 }
