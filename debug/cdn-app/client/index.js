@@ -199,6 +199,18 @@ Min.createElement(
   class TodoItemElement extends Min.AppElement {
     static observedAttributes = ['index', 'item'];
     static tagName = 'todo-item';
+    static css = `
+      .todo-item {
+        border: 1px solid green;
+        border-radius: 8px;
+        margin: 6px;
+        padding: 6px;
+      }
+      
+      .todo-item > * {
+        display: inline-block;
+      }
+    `;
 
     index;
     item;

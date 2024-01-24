@@ -7,14 +7,24 @@ export abstract class AppElement extends HTMLElement {
   static tagName: string = 'app-element'
   static observedAttributes: string[] = [];
   static shadowDom = false;
+  static css = '';
   _stateListenerIds: any[] = [];
   _proxyValues: any = {};
   _hasInitialized = false;
   _eventListenerParams: [string, string, any][] = [];
   _eventListeners: [Element, string, any][] = [];
+  _lastUsedHtml: string;
 
   get innerHtmlTarget(): HTMLElement | ShadowRoot {
     return this.shadowRoot || this;
+  }
+
+  get _cssTagHtml() {
+    let css = '';
+    if ((this.constructor as any).css) {
+      css = `<style>${(this.constructor as any).css}</style>`;
+    }
+    return css;
   }
 
   render() {
@@ -67,8 +77,9 @@ export abstract class AppElement extends HTMLElement {
 
   doRender() {
     if (this._hasInitialized) {
-      const templateHtml = this.render();
-      if (templateHtml !== this.innerHTML) {
+      const templateHtml = this._cssTagHtml + this.render();
+      if (templateHtml !== this._lastUsedHtml) {
+        this._lastUsedHtml = templateHtml;
         this.setSanitizedHTML(templateHtml);
         this._renderEventListeners();
         this.renderedCallback();
