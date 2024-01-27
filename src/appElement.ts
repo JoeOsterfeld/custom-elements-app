@@ -1,5 +1,6 @@
 import {AppState} from './appState';
 import {createProxy} from './elementValueProxy';
+import { getParentElement } from './utils';
 import DOMPurify from 'dompurify';
 
 export abstract class AppElement extends HTMLElement {
@@ -11,11 +12,12 @@ export abstract class AppElement extends HTMLElement {
   _stateListenerIds: any[] = [];
   _proxyValues: any = {};
   _hasInitialized = false;
+  _isRefreshingDataProps = false;
   _eventListenerParams: [string, string, any][] = [];
   _eventListeners: [Element, string, any][] = [];
-  _lastUsedHtml: string;
 
   __cssTagHtml: string;
+  __parentScope: AppElement;
 
   get innerHtmlTarget(): HTMLElement | ShadowRoot {
     return this.shadowRoot || this;
@@ -84,13 +86,11 @@ export abstract class AppElement extends HTMLElement {
 
   doRender() {
     if (this._hasInitialized) {
+      this._refreshDataProps();
       const templateHtml = this._cssTagHtml + this.render();
-      if (templateHtml !== this._lastUsedHtml) {
-        this._lastUsedHtml = templateHtml;
-        this.setSanitizedHTML(templateHtml);
-        this._renderEventListeners();
-        this.renderedCallback();
-      }
+      this.setSanitizedHTML(templateHtml);
+      this._renderEventListeners();
+      this.renderedCallback();
     }
   }
 
@@ -101,7 +101,10 @@ export abstract class AppElement extends HTMLElement {
       get: () => this._proxyValues[propName] as any,
       set: (value) => {
         this._proxyValues[propName] = createProxy(value, () => this.doRender());
-        this.doRender();
+        if (!this._isRefreshingDataProps) {
+          // If not setting data props pre-render, trigger render
+          this.doRender();
+        }
       }
     });
     (this as any)[propName] = value;
@@ -159,5 +162,38 @@ export abstract class AppElement extends HTMLElement {
       return attrName;
     }
     return attrName.replace(/-./g, x=>x[1].toUpperCase())
+  }
+
+  /**
+   * Retrieve a value from the parent property for data values
+   * @param propertyName
+   * @returns
+   */
+  _getParentScopeValue(propertyName: string): any {
+    if (!this.__parentScope) {
+      let appEl: any = getParentElement(this);
+      while (appEl && (appEl.constructor as any)?.elementType !== AppElement.elementType) {
+        appEl = getParentElement(appEl);
+      }
+      this.__parentScope = appEl;
+    }
+    
+    return (this.__parentScope as any)[propertyName];
+  }
+
+  /**
+   * Updates the props saved as dataset attributes
+   */
+  _refreshDataProps() {
+    this._isRefreshingDataProps = true;
+    for (const [key, value] of Object.entries(this.dataset)) {
+      if (typeof value === 'string') {
+        const parentValue = this._getParentScopeValue(value);
+        if (parentValue || parentValue === 0) {
+          (this as any)[key] = parentValue;
+        }
+      }
+    }
+    this._isRefreshingDataProps = false;
   }
 }

@@ -56,6 +56,7 @@ Min.Router.init({
         '/:day': 'calendar-day'
       }
     },
+    '/pass-down-data': 'pass-down-data'
   },
   notFoundTag: 'not-found-page'
 });
@@ -92,6 +93,7 @@ Min.createElement(
         <a href="/calendar/krista">Krista's Calendar</a>
         <a href="/calendar/joe/monday">Joe's Monday Calendar</a>
         <a href="/shadow">Shadow</a>
+        <a href="/pass-down-data">Pass Down Data</a>
 
         <router-outlet></router-outlet>
       `;
@@ -318,6 +320,85 @@ Min.createElement(
         Calendar day!
         <h2>${this.uiDay}</h2>
       </div>`
+    }
+  }
+);
+
+Min.createElement(
+  class CalendarDay extends Min.AppElement {
+    static observedAttributes = ['counter'];
+    static tagName = 'pass-down-data';
+    days = [{
+      name: 'Monday',
+      isWorkDay: true
+    },{
+      name: 'Tuesday',
+      isWorkDay: true
+    },{
+      name: 'Wednesday',
+      isWorkDay: true
+    },{
+      name: 'Thursday',
+      isWorkDay: true
+    },{
+      name: 'Friday',
+      isWorkDay: true
+    },{
+      name: 'Saturday',
+      isWorkDay: false
+    },{
+      name: 'Sunday',
+      isWorkDay: false
+    }];
+
+    counter = 1;
+
+    initializedCallback() {
+      dispatchPageTitleEv(this, 'Passing Data Into Children');
+    }
+
+    counterListener = this.eventListener('button', 'click', (event) => {
+      let value = 1;
+      if (event.target.textContent === '-') {
+        value *= -1;
+      }
+      this.counter += value;
+    });
+
+    render() {
+      return `
+        <div>
+          <button>+</button>
+          <button>-</button>
+        </div>
+        <days-list data-count="counter" data-days="days"></days-list>
+        <days-list data-count="counter" data-days="days"></days-list>
+        <days-list data-count="counter" data-days="days"></days-list>
+      `
+    }
+  }
+);
+
+Min.createElement(
+  class extends Min.AppElement {
+    static tagName = 'days-list';
+    static css = `
+      ${this.tagName} {
+        display: block;
+      }
+    `;
+    days = [];
+    count;
+
+    render() {
+      return `
+      Count: ${this.count}<br>
+      ${this.templateMap(this.days, (day) => `
+        <span>
+          ${day.isWorkDay ? '💼' : ''}
+          ${day.name}
+        </span>
+      `)}`
     }
   }
 );

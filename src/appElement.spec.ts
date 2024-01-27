@@ -33,15 +33,16 @@ describe('AppElement', () => {
     }
   };
   class GroceryListClass extends AppElement {
-    static observedAttributes: string[] = ['items', 'store-name'];
+    static observedAttributes: string[] = ['items', 'title-str', 'store-name'];
     static tagName = 'grocery-list';
     items = ['Milk', 'Bread', 'Eggs', 'Apples'].map(name => ({
       name,
       complete: false
     }));
+    titleStr = "Grocery List"
 
     render() {
-      return `<h3>Grocery List</h3>
+      return `<h3>${this.titleStr}</h3>
             <ul>
               ${this.templateMap(this.items, (item: any) => `<li>
                 ${item.name} ${item.complete ? 'COMPLETE' : ''}
@@ -49,7 +50,16 @@ describe('AppElement', () => {
             </ul>`;
     }
   }
-  const elClasses = [SimpleElClass, AttrsElClass, GroceryListClass, ShadowElClass];
+  class JunkFoodListClass extends AppElement {
+    static tagName = 'grocery-list-parent';
+    junkTitle = 'Junk Food!';
+    junkItems = ['fries', 'pizza', 'hotdog', 'cheeseburger'];
+
+    render() {
+      return `<grocery-list data-title-str="junkTitle" data-items="junkItems"></grocery-list>`;
+    }
+  }
+  const elClasses = [SimpleElClass, AttrsElClass, GroceryListClass, ShadowElClass, JunkFoodListClass];
 
   beforeAll(() => {
     for (const klass of elClasses) {
@@ -157,6 +167,14 @@ describe('AppElement', () => {
     expect(el.innerHTML).toBeFalsy();
     expect(el.shadowRoot).toBeTruthy();
     expect(el.shadowRoot.innerHTML).toBe('<p>This is a simple shadow dom element</p>');
+  });
+
+  it('should pass values down using data attributes', () => {
+    const el = appendEl(JunkFoodListClass);
+    expect(el).toBeTruthy();
+    expect(el.firstChild).toBeInstanceOf(GroceryListClass);
+    expect(el.firstChild.titleStr).toBe(el.junkTitle);
+    expect(el.firstChild.items).toEqual(el.junkItems);
   });
 
 });

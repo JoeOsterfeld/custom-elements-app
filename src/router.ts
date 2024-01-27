@@ -1,5 +1,6 @@
 import { AppElement } from "./appElement";
 import { createElement } from "./createElement";
+import {getParentElement} from './utils';
 
 const navigateEventName = 'Min.navigate';
 
@@ -137,12 +138,12 @@ createElement(
         return this._parentRouterOutlets;
       }
       let parentOutlets = [];
-      let el: any = this._getParent(this);
+      let el: any = getParentElement(this);
       while (el) {
         if (el.tagName === this.tagName) {
           parentOutlets.push(el);
         }
-        el = this._getParent(el);
+        el = getParentElement(el);
       }
       this._parentRouterOutlets = parentOutlets;
       return parentOutlets;
@@ -181,14 +182,6 @@ createElement(
           this.pageTag = currentRoute.tag;
         }
       }
-    }
-
-    _getParent(el: any) {
-      let parent = el.parentElement || el.parentNode;
-      if (parent?.host) {
-        parent = parent.host;
-      }
-      return parent;
     }
   } 
 )
