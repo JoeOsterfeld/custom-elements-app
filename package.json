@@ -15,7 +15,7 @@
   "scripts": {
     "start:cdn-app": "debug/cdn-app/start",
     "test": "jest",
-    "build": "rollup --bundleConfigAsCjs -c ./rollup.config.js"
+    "build": "./build.sh"
   },
   "author": "Joe Osterfeld <joeosterfeld@gmail.com>",
   "license": "MIT",
