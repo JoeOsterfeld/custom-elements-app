@@ -1,5 +1,5 @@
 import { AppElement } from './appElement';
-import { createElement } from './createElement';
+import { defineElement } from './defineElement';
 describe('AppElement', () => {
   const appendEl = (elClass: any) => {
     const el = document.createElement(elClass.tagName);
@@ -63,7 +63,7 @@ describe('AppElement', () => {
 
   beforeAll(() => {
     for (const klass of elClasses) {
-      createElement(klass);
+      defineElement(klass);
     }
   });
 

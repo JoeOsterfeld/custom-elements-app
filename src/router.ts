@@ -1,5 +1,5 @@
 import { AppElement } from "./appElement";
-import { createElement } from "./createElement";
+import { defineElement } from "./defineElement";
 import {getParentElement} from './utils';
 
 const navigateEventName = 'Min.navigate';
@@ -124,7 +124,7 @@ class RouterKlass {
   }
 }
 
-createElement(
+defineElement(
   class RouterElement extends AppElement {
     static tagName = 'router-outlet';
     static observedAttributes: string[] = ['pageTag'];

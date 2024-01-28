@@ -28,7 +28,7 @@ Import the package of the CDN, and create your first component:
   <script src="https://www.unpkg.com/minfw@1.0.0/dist/minfw.umd.js"></script>
 
   <script>
-    Min.createElement(
+    Min.defineElement(
         class extends Min.AppElement {
             static tagName = 'grocery-list';
             items = ['Milk', 'Bread', 'Eggs', 'Apples'];
@@ -49,3 +49,11 @@ Import the package of the CDN, and create your first component:
   <grocery-list></grocery-list>
 </body>
 ```
+
+# TODO:
+
+- Router tests
+- Add Services
+- Create setup for building project without CDN method
+- Deferred server components
+  - Universal HTTP service

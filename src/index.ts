@@ -1,6 +1,6 @@
 import { AppState } from './appState';
 import { AppElement } from './appElement';
-import { createElement } from './createElement';
+import { defineElement } from './defineElement';
 import {Router} from './router';
 import {el} from './elScope';
 
@@ -9,6 +9,6 @@ import {el} from './elScope';
 export default {
   AppElement,
   AppState,
-  createElement,
+  defineElement,
   Router
 };
