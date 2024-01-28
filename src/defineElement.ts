@@ -1,5 +1,5 @@
-import { AppElement } from "./appElement";
+import { MinElement } from "./minElement";
 
-export const defineElement = (elementClass: typeof AppElement) => {
+export const defineElement = (elementClass: typeof MinElement) => {
   window.customElements.define(elementClass.tagName, elementClass as any);
 }

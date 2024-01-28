@@ -29,7 +29,7 @@ Import the package of the CDN, and create your first component:
 
   <script>
     Min.defineElement(
-        class extends Min.AppElement {
+        class extends Min.MinElement {
             static tagName = 'grocery-list';
             items = ['Milk', 'Bread', 'Eggs', 'Apples'];
 

@@ -1,19 +1,19 @@
-import { AppElement } from './appElement';
+import { MinElement } from './minElement';
 import { defineElement } from './defineElement';
-describe('AppElement', () => {
+describe('MinElement', () => {
   const appendEl = (elClass: any) => {
     const el = document.createElement(elClass.tagName);
     document.body.appendChild(el);
     return el;
   }
-  class SimpleElClass extends AppElement {
+  class SimpleElClass extends MinElement {
     static tagName = 'simple-el';
 
     render() {
       return `<p>This is a simple element</p>`
     }
   };
-  class ShadowElClass extends AppElement {
+  class ShadowElClass extends MinElement {
     static tagName = 'shadow-el';
     static shadowDom = true;
 
@@ -21,7 +21,7 @@ describe('AppElement', () => {
       return `<p>This is a simple shadow dom element</p>`
     }
   };
-  class AttrsElClass extends AppElement {
+  class AttrsElClass extends MinElement {
     static observedAttributes: string[] = ['first', 'last'];
     static tagName = 'attrs-el-class';
 
@@ -32,7 +32,7 @@ describe('AppElement', () => {
       return `<p>Name:</p><p>${this.first} ${this.last}</p>`;
     }
   };
-  class GroceryListClass extends AppElement {
+  class GroceryListClass extends MinElement {
     static observedAttributes: string[] = ['items', 'title-str', 'store-name'];
     static tagName = 'grocery-list';
     items = ['Milk', 'Bread', 'Eggs', 'Apples'].map(name => ({
@@ -50,7 +50,7 @@ describe('AppElement', () => {
             </ul>`;
     }
   }
-  class JunkFoodListClass extends AppElement {
+  class JunkFoodListClass extends MinElement {
     static tagName = 'grocery-list-parent';
     junkTitle = 'Junk Food!';
     junkItems = ['fries', 'pizza', 'hotdog', 'cheeseburger'];
@@ -68,7 +68,7 @@ describe('AppElement', () => {
   });
 
   it('should be defined', () => {
-    expect(AppElement).toBeTruthy();
+    expect(MinElement).toBeTruthy();
   });
 
   it('should create element', () => {
@@ -91,7 +91,7 @@ describe('AppElement', () => {
   });
 
   it('should use callbacks', () => {
-    const el = document.createElement(SimpleElClass.tagName) as AppElement;
+    const el = document.createElement(SimpleElClass.tagName) as MinElement;
     const initializedCbSpy = jest.spyOn(el, 'initializedCallback');
     const renderSpy = jest.spyOn(el, 'render');
     const renderedCbSpy = jest.spyOn(el, 'renderedCallback');
@@ -102,7 +102,7 @@ describe('AppElement', () => {
   });
 
   it('should render on observed attribute change', () => {
-    const el = document.createElement(AttrsElClass.tagName) as AppElement;
+    const el = document.createElement(AttrsElClass.tagName) as MinElement;
     const renderSpy = jest.spyOn(el, 'render');
     document.body.appendChild(el);
     expect(renderSpy).toHaveBeenCalledTimes(1);

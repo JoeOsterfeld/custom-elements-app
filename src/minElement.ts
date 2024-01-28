@@ -3,8 +3,8 @@ import {createProxy} from './elementValueProxy';
 import { getParentElement } from './utils';
 import DOMPurify from 'dompurify';
 
-export abstract class AppElement extends HTMLElement {
-  static elementType = 'MinFwAppElement';
+export abstract class MinElement extends HTMLElement {
+  static elementType = 'MinFwElement';
   static tagName: string = 'app-element'
   static observedAttributes: string[] = [];
   static shadowDom = false;
@@ -17,7 +17,7 @@ export abstract class AppElement extends HTMLElement {
   _eventListeners: [Element, string, any][] = [];
 
   __cssTagHtml: string;
-  __parentScope: AppElement;
+  __parentScope: MinElement;
 
   get innerHtmlTarget(): HTMLElement | ShadowRoot {
     return this.shadowRoot || this;
@@ -172,7 +172,7 @@ export abstract class AppElement extends HTMLElement {
   _getParentScopeValue(propertyName: string): any {
     if (!this.__parentScope) {
       let appEl: any = getParentElement(this);
-      while (appEl && (appEl.constructor as any)?.elementType !== AppElement.elementType) {
+      while (appEl && (appEl.constructor as any)?.elementType !== MinElement.elementType) {
         appEl = getParentElement(appEl);
       }
       this.__parentScope = appEl;

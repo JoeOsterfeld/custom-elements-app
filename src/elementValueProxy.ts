@@ -1,15 +1,15 @@
 // Proxy classes. "instanceof Proxy" doesn't work, so created 
 // the classes below. All Proxies will return these class prototypes
-class AppElementProxy { };
-class AppElementProxyArray { };
-// const isProxy = (obj) => obj instanceof AppElementProxy || obj instanceof AppElementProxyArray
+class MinElementProxy { };
+class MinElementProxyArray { };
+// const isProxy = (obj) => obj instanceof MinElementProxy || obj instanceof MinElementProxyArray
 const getProxy = (value: any, config: any) => {
   const isArray = Array.isArray(value);
   return new Proxy(
     value,
     {
       ...config,
-      getPrototypeOf: () => isArray ? AppElementProxyArray.prototype : AppElementProxy.prototype
+      getPrototypeOf: () => isArray ? MinElementProxyArray.prototype : MinElementProxy.prototype
     }
   );
 }

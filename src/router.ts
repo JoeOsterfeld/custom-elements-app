@@ -1,4 +1,4 @@
-import { AppElement } from "./appElement";
+import { MinElement } from "./minElement";
 import { defineElement } from "./defineElement";
 import {getParentElement} from './utils';
 
@@ -125,7 +125,7 @@ class RouterKlass {
 }
 
 defineElement(
-  class RouterElement extends AppElement {
+  class RouterElement extends MinElement {
     static tagName = 'router-outlet';
     static observedAttributes: string[] = ['pageTag'];
 

@@ -1,5 +1,5 @@
 import { AppState } from './appState';
-import { AppElement } from './appElement';
+import { MinElement } from './minElement';
 import { defineElement } from './defineElement';
 import {Router} from './router';
 import {el} from './elScope';
@@ -7,7 +7,7 @@ import {el} from './elScope';
 (window as any).el = el;
 
 export default {
-  AppElement,
+  MinElement,
   AppState,
   defineElement,
   Router

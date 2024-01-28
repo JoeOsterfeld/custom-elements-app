@@ -67,7 +67,7 @@ const dispatchPageTitleEv = (el, title) => {
 }
 
 Min.defineElement(
-  class MainAppElement extends Min.AppElement {
+  class MainMinElement extends Min.MinElement {
     static tagName = 'app-element'
     static observedAttributes = ['title'];
     title = '';
@@ -102,7 +102,7 @@ Min.defineElement(
 );
 
 Min.defineElement(
-  class extends Min.AppElement {
+  class extends Min.MinElement {
     static tagName = 'calendar-page'
     static observedAttributes = ['name'];
 
@@ -124,7 +124,7 @@ Min.defineElement(
 );
 
 Min.defineElement(
-  class extends Min.AppElement {
+  class extends Min.MinElement {
     static tagName = 'not-found-page'
 
     initializedCallback() {
@@ -141,7 +141,7 @@ Min.defineElement(
 );
 
 Min.defineElement(
-  class extends Min.AppElement {
+  class extends Min.MinElement {
     static tagName = 'shadow-dom-page'
     static shadowDom = true;
 
@@ -159,7 +159,7 @@ Min.defineElement(
 );
 
 Min.defineElement(
-  class TodoAppElement extends Min.AppElement {
+  class TodoMinElement extends Min.MinElement {
     static observedAttributes = ['items'];
     static tagName = 'todo-list';
 
@@ -198,7 +198,7 @@ Min.defineElement(
 );
 
 Min.defineElement(
-  class TodoItemElement extends Min.AppElement {
+  class TodoItemElement extends Min.MinElement {
     static observedAttributes = ['index', 'item'];
     static tagName = 'todo-item';
     static css = `
@@ -260,7 +260,7 @@ Min.defineElement(
 );
 
 Min.defineElement(
-  class TimeDisplayElement extends Min.AppElement {
+  class TimeDisplayElement extends Min.MinElement {
     static observedAttributes = ['time'];
     static tagName = 'time-display';
     intervalId;
@@ -291,7 +291,7 @@ Min.defineElement(
 );
 
 Min.defineElement(
-  class TimeElement extends Min.AppElement {
+  class TimeElement extends Min.MinElement {
     static observedAttributes = [];
     static tagName = 'simple-template';
 
@@ -304,7 +304,7 @@ Min.defineElement(
 );
 
 Min.defineElement(
-  class CalendarDay extends Min.AppElement {
+  class CalendarDay extends Min.MinElement {
     static observedAttributes = ['day'];
     static tagName = 'calendar-day';
 
@@ -325,7 +325,7 @@ Min.defineElement(
 );
 
 Min.defineElement(
-  class CalendarDay extends Min.AppElement {
+  class CalendarDay extends Min.MinElement {
     static observedAttributes = ['counter'];
     static tagName = 'pass-down-data';
     days = [{
@@ -380,7 +380,7 @@ Min.defineElement(
 );
 
 Min.defineElement(
-  class extends Min.AppElement {
+  class extends Min.MinElement {
     static tagName = 'days-list';
     static css = `
       ${this.tagName} {

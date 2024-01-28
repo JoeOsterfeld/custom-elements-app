@@ -1,10 +1,10 @@
-import { AppElement } from './appElement';
+import { MinElement } from './minElement';
 
 const fnHandler = {
   apply: (fn: any, _proxy: any, [event, ...otherArgs]: any[]) => {
     // Gets the next MinFw app element up the tree and call the function on it
     let appEl = event.target;
-    while (appEl && appEl.constructor?.elementType !== AppElement.elementType) {
+    while (appEl && appEl.constructor?.elementType !== MinElement.elementType) {
       appEl = appEl.parentElement || appEl.parentNode;
       if (appEl.host) {
         // If the parent is a shadowDom root, climb up to its host
