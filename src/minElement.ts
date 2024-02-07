@@ -53,7 +53,7 @@ export abstract class MinElement extends HTMLElement {
     }
     this._hasInitialized = true;
     this.doRender();
-    this.initializedCallback();
+    this.onInit();
   }
 
   disconnectedCallback() {
@@ -61,10 +61,13 @@ export abstract class MinElement extends HTMLElement {
     for (const id of this._stateListenerIds) {
       AppState.removeListener(id);
     }
+    this.onDisconnect();
   }
 
-  initializedCallback() { };
-  renderedCallback() { };
+  // Lifecycle methods
+  onInit() { }; // Called once initialized (from connectedCallback)
+  onRender() { }; // Called after render
+  onDisconnect() {}; // Called when disconnected (from disconnectedCallback)
 
   templateMap = (arrayValue: any, mapFn: any) => {
     return arrayValue.map(mapFn).join('');
@@ -90,7 +93,7 @@ export abstract class MinElement extends HTMLElement {
       const templateHtml = this._cssTagHtml + this.render();
       this.setSanitizedHTML(templateHtml);
       this._renderEventListeners();
-      this.renderedCallback();
+      this.onRender();
     }
   }
 

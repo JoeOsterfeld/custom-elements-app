@@ -179,7 +179,7 @@ defineElement(
       return parentOutlets;
     }
 
-    initializedCallback() {
+    onInit() {
       this.resolve(); 
       document.addEventListener(navigateEventName, () => {
         this.resolve()

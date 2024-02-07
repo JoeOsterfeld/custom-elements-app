@@ -92,9 +92,9 @@ describe('MinElement', () => {
 
   it('should use callbacks', () => {
     const el = document.createElement(SimpleElClass.tagName) as MinElement;
-    const initializedCbSpy = jest.spyOn(el, 'initializedCallback');
+    const initializedCbSpy = jest.spyOn(el, 'onInit');
     const renderSpy = jest.spyOn(el, 'render');
-    const renderedCbSpy = jest.spyOn(el, 'renderedCallback');
+    const renderedCbSpy = jest.spyOn(el, 'onRender');
     document.body.appendChild(el);
     expect(renderSpy).toHaveBeenCalledTimes(1);
     expect(initializedCbSpy).toHaveBeenCalledTimes(1);

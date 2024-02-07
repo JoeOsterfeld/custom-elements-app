@@ -108,7 +108,7 @@ Min.defineElement(
 
     name;
 
-    initializedCallback() {
+    onInit() {
       dispatchPageTitleEv(this, 'Calendar');
     }
 
@@ -127,7 +127,7 @@ Min.defineElement(
   class extends Min.MinElement {
     static tagName = 'not-found-page'
 
-    initializedCallback() {
+    onInit() {
       dispatchPageTitleEv(this, 'Not Found Page');
     }
 
@@ -145,7 +145,7 @@ Min.defineElement(
     static tagName = 'shadow-dom-page'
     static shadowDom = true;
 
-    initializedCallback() {
+    onInit() {
       dispatchPageTitleEv(this, 'Shadow DOM Element Page');
     }
 
@@ -165,7 +165,7 @@ Min.defineElement(
 
     items = [];
 
-    initializedCallback() {
+    onInit() {
       dispatchPageTitleEv(this, 'To Do List');
       this.stateListener('items', (items) => {
         this.items = items || [];
@@ -221,7 +221,7 @@ Min.defineElement(
       return Number(this.index || 0);
     }
 
-    initializedCallback() {
+    onInit() {
       this.stateListener('item', (item) => {
         this.item = item;
       }, this.indexNum);
@@ -267,7 +267,7 @@ Min.defineElement(
 
     time = this._getTimestamp();
 
-    initializedCallback() {
+    onInit() {
       this.intervalId = setInterval(() => {
         this.time = this._getTimestamp();
       }, 1000);
@@ -353,7 +353,7 @@ Min.defineElement(
 
     counter = 1;
 
-    initializedCallback() {
+    onInit() {
       dispatchPageTitleEv(this, 'Passing Data Into Children');
     }
 
