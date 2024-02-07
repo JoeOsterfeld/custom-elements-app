@@ -14,30 +14,47 @@ export interface RouterConfig {
   }
 };
 
+/**
+ * Keeping checks for whether listening here to avoid
+ * duplicate listeners
+ */
+let isListeningToClicks = false;
+let isListeningToPopstate = false;
+
 class RouterKlass {
   config: RouterConfig = {};
   pathHistory = []; // String array of previous paths navigated to
   routeHierarchy: RouteHierarchyItem[] | undefined = []; // Array of configuration of router outlets from root down.
 
+  documentClickHandler = (event: any) => {
+    if (event.target instanceof HTMLAnchorElement || event.target.hasAttribute('data-router-link')) {
+      const href = event.target.getAttribute('href');
+      let urlObj;
+      try { urlObj = new URL(href) } catch { };
+      if (!urlObj || urlObj.origin === location.origin) {
+        event.preventDefault();
+        this.navigate(href);
+      }
+    }
+  };
+
+  popstateHandler = () => {
+    this.navigate(window.location.pathname, true);
+  };
+
   init(config: RouterConfig) {
     this.config = config;
+    this.pathHistory = [];
+    this.routeHierarchy = [];
     this.navigate(window.location.pathname);
-    const documentClickArgs: [any, any] = ['click', (event: any) => {
-      if (event.target instanceof HTMLAnchorElement || event.target.hasAttribute('data-router-link')) {
-        const href = event.target.getAttribute('href');
-        let urlObj;
-        try { urlObj = new URL(href) } catch { };
-        if (!urlObj || urlObj.origin === location.origin) {
-          event.preventDefault();
-          this.navigate(href);
-        }
-      }
-    }];
-    document.addEventListener(...documentClickArgs);
-    const winPopArgs: [any, any] = ['popstate', () => {
-      this.navigate(window.location.pathname, true);
-    }];
-    window.addEventListener(...winPopArgs);
+    const documentClickArgs: [any, any] = ['click', this.documentClickHandler];
+    if (!isListeningToClicks) {
+      document.addEventListener(...documentClickArgs);
+    }
+    const winPopArgs: [any, any] = ['popstate', this.popstateHandler];
+    if (!isListeningToPopstate) {
+      window.addEventListener(...winPopArgs);
+    }
     window.addEventListener('beforeunload', () => {
       document.removeEventListener(...documentClickArgs);
       window.removeEventListener(...winPopArgs);
@@ -52,6 +69,14 @@ class RouterKlass {
     // TODO: Add active classes to all link els.
   }
 
+  back() {
+    if (this.pathHistory.length > 1) {
+      this.navigate(this.pathHistory[this.pathHistory.length - 2], true);
+    } else {
+      window.history.back();
+    }
+  }
+
   /**
    * Gets current route hierarchy, which is an array of route configurations,
    * starting at the root router outlet, and ending with the lowest one.
@@ -61,7 +86,7 @@ class RouterKlass {
     const _getMatch = this._getMatchParams; // For keeping "this" reference
     const locationSegs = window.location.pathname.split('/');
     let hierarchy = (function deepResolve(config, parents: RouteHierarchyItem[]) {
-      const parentPath = parents.map(res => res.path).join('/');
+      const parentPath = !parents.length ? '' : parents[parents.length - 1].path;
       for (const [routePath, routeCfg] of ((Object as any).entries(config.routes || {}))) {
         let composedPath = `${parentPath}${routePath}`;
         if (composedPath.length > 1) {
@@ -89,19 +114,25 @@ class RouterKlass {
           }
         }
       }
+      // Enables not found page for nested tags
+      if (config.notFoundTag) {
+        return parents.concat([{
+          path: window.location.pathname,
+          tag: config.notFoundTag,
+          params: {}
+        }])
+      }
     })(this.config, []);
-    if (!hierarchy || (hierarchy && !hierarchy.length)) {
-      hierarchy = [{ path: window.location.pathname, tag: this.config.notFoundTag || '', params: {} }];
-    }
+
     return hierarchy;
   }
 
   /**
    * Checks whether the two arrays match a pattern and returns
-   * any parsed parameters
+   * any parsed parameters. If no match, return undefined
    * @param {string[]} segs 
    * @param {string[]} templateSegs 
-   * @returns 
+   * @returns {object|undefined}
    */
   _getMatchParams(segs: string[], templateSegs: string[]) {
     const params: any = {};
@@ -118,9 +149,7 @@ class RouterKlass {
       })
       .join('\/')
       }$`).test(segs.join('/'));
-    if (match) {
-      return params;
-    }
+    return match ? params : undefined;
   }
 }
 
@@ -128,6 +157,7 @@ defineElement(
   class RouterElement extends MinElement {
     static tagName = 'router-outlet';
     static observedAttributes: string[] = ['pageTag'];
+    static routerOutletMaxDepth = 10;
 
     pageTag: string | undefined;
     params: any;
@@ -176,8 +206,11 @@ defineElement(
      */
     resolve() {
       if (Router.routeHierarchy) {
-        const currentRoute = Router.routeHierarchy[this.parentRouterOutlets.length];
-        if (currentRoute && currentRoute.tag) {
+        const hierarchyIndex = this.parentRouterOutlets.length;
+        const currentRoute = Router.routeHierarchy[hierarchyIndex];
+        if (hierarchyIndex >= RouterElement.routerOutletMaxDepth) {
+          console.error(`Error: Exceeded max depth of ${RouterElement.routerOutletMaxDepth} router outlets. Skipping further router outlets.`);
+        } if (currentRoute && currentRoute.tag) {
           this.params = currentRoute.params;
           this.pageTag = currentRoute.tag;
         }
