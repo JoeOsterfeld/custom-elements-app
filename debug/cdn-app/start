@@ -1,7 +1,0 @@
-# !/bin/bash
-
-ROOT_DIR="$(git rev-parse --show-toplevel)"
-
-npx onchange -i -d 100 'src/**/*' 'debug/cdn-app/**/*' -- npm run build & \
-    node "$ROOT_DIR/debug/cdn-app/index.js" & \
-    wait

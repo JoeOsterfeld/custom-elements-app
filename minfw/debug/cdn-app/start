@@ -1,0 +1,7 @@
+# !/bin/bash
+
+ROOT_DIR="$(git rev-parse --show-toplevel)/minfw"
+
+npx onchange -i -d 100 "$ROOT_DIRsrc/**/*" "$ROOT_DIR/debug/cdn-app/**/*" -- npm run build & \
+    node "$ROOT_DIR/debug/cdn-app/index.js" & \
+    wait
