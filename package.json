@@ -1,8 +1,9 @@
 {
   "name": "minfw",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "",
-  "main": "dist/minfw.esm.js",
+  "main": "dist/minfw.mjs",
+  "types": "dist/minfw.d.ts",
   "browser": "dist/minfw.umd.js",
   "homepage": "https://github.com/JoeOsterfeld/minfw#readme",
   "bugs": {
@@ -36,7 +37,8 @@
     "ts-jest": "^29.1.1",
     "tslib": "^2.6.2",
     "typescript": "^5.3.3",
-    "vite": "^5.0.12"
+    "vite": "^5.0.12",
+    "vite-plugin-dts": "^3.7.2"
   },
   "dependencies": {
     "dompurify": "^3.0.8"
