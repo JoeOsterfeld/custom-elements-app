@@ -1,6 +1,6 @@
 # Min Framework
 
-A tiny front end framework. GZipped Bundle Size: `10.7kb`.
+A tiny front end framework. GZipped Bundle Size: `11.1kb`.
 
 ## What it is
 
