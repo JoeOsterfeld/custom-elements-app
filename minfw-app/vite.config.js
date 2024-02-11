@@ -1,14 +1,16 @@
 import { defineConfig } from 'vite';
 
 export default defineConfig({
+  publicDir: './template/public',
   build: {
-    outDir: 'dist',
+    outDir: 'template/dist',
     sourcemap: true,
     minify: 'terser',
     lib: {
-      entry: 'src/index.ts',
-      fileName: 'minfw-app',
-      formats: ['es'] // default is ['es', 'umd']
+      entry: 'template/src/app.ts',
+      fileName: 'app',
+      name: 'App',
+      formats: ['cjs'],
     },
   },
 });

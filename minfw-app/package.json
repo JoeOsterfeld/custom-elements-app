@@ -42,6 +42,6 @@
   },
   "dependencies": {
     "dompurify": "^3.0.8",
-    "minfw": "^1.1.0"
+    "minfw": "^1.1.2"
   }
 }

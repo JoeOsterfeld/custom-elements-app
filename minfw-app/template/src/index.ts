@@ -1,3 +1,0 @@
-import {defineElement} from 'minfw';
-
-
