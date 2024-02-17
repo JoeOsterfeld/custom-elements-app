@@ -1,5 +1,6 @@
-import {AppState} from './appState';
-import {createProxy} from './elementValueProxy';
+import { AppState } from './appState';
+import { createProxy } from './elementValueProxy';
+import { EventListenerRegistry } from './eventListenerRegistry';
 import { getParentElement } from './utils';
 import DOMPurify from 'dompurify';
 
@@ -13,8 +14,7 @@ export abstract class MinElement extends HTMLElement {
   _proxyValues: any = {};
   _hasInitialized = false;
   _isRefreshingDataProps = false;
-  _eventListenerParams: [string, string, any][] = [];
-  _eventListeners: [Element, string, any][] = [];
+  _EventListenerRegistry = new EventListenerRegistry();
 
   __cssTagHtml: string;
   __parentScope: MinElement;
@@ -57,17 +57,17 @@ export abstract class MinElement extends HTMLElement {
   }
 
   disconnectedCallback() {
-    this._removeRegisteredListeners();
     for (const id of this._stateListenerIds) {
       AppState.removeListener(id);
     }
+    this._EventListenerRegistry.removed();
     this.onDisconnect();
   }
 
   // Lifecycle methods
   onInit() { }; // Called once initialized (from connectedCallback)
   onRender() { }; // Called after render
-  onDisconnect() {}; // Called when disconnected (from disconnectedCallback)
+  onDisconnect() { }; // Called when disconnected (from disconnectedCallback)
 
   templateMap = (arrayValue: any, mapFn: any) => {
     return arrayValue.map(mapFn).join('');
@@ -79,10 +79,6 @@ export abstract class MinElement extends HTMLElement {
     );
   }
 
-  eventListener(querySelector: string, eventName: string, handler: (event: Event) => void) {
-    this._eventListenerParams.push([querySelector, eventName, handler]);
-  }
-
   stateDispatch(actionName: string, ...args: any[]) {
     AppState.dispatch(actionName, ...args);
   }
@@ -92,7 +88,7 @@ export abstract class MinElement extends HTMLElement {
       this._refreshDataProps();
       const templateHtml = this._cssTagHtml + this.render();
       this.setSanitizedHTML(templateHtml);
-      this._renderEventListeners();
+      this._EventListenerRegistry.rendered(this);
       this.onRender();
     }
   }
@@ -111,27 +107,6 @@ export abstract class MinElement extends HTMLElement {
       }
     });
     (this as any)[propName] = value;
-  }
-
-  // Update event listeners after render
-  _renderEventListeners() {
-    this._removeRegisteredListeners();
-    // Add latest listeners
-    for (const [selector, eventName, handler] of this._eventListenerParams) {
-      this.innerHtmlTarget.querySelectorAll(selector).forEach(el => {
-        const args: [string, any] = [eventName, handler];
-        this._eventListeners.push([el, ...args]);
-        el.addEventListener(...args);
-      });
-    }
-  }
-
-  // Remove registered event listeners
-  _removeRegisteredListeners() {
-    for (const [el, eventName, handler] of this._eventListeners) {
-      el.removeEventListener(eventName, handler);
-    }
-    this._eventListeners = [];
   }
 
   /**
@@ -154,7 +129,7 @@ export abstract class MinElement extends HTMLElement {
       });
     }
   }
-  
+
   /**
    * Convert attribute names to camelcase for use on element
    * @param {string} attrName - attribute name
@@ -164,7 +139,7 @@ export abstract class MinElement extends HTMLElement {
     if (!attrName.includes('-')) {
       return attrName;
     }
-    return attrName.replace(/-./g, x=>x[1].toUpperCase())
+    return attrName.replace(/-./g, x => x[1].toUpperCase())
   }
 
   /**
@@ -180,7 +155,7 @@ export abstract class MinElement extends HTMLElement {
       }
       this.__parentScope = appEl;
     }
-    
+
     return (this.__parentScope as any)[propertyName];
   }
 

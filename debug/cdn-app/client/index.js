@@ -72,10 +72,6 @@ Min.defineElement(
     static observedAttributes = ['title'];
     title = '';
 
-    pageTitleChangeListener = this.eventListener('router-outlet', pageTitleChangeEventName, (event) => {
-      this.title = event.detail;
-    });
-
     render() {
       return `
         <h1>${this.title}</h1>
@@ -95,8 +91,12 @@ Min.defineElement(
         <a href="/shadow">Shadow</a>
         <a href="/pass-down-data">Pass Down Data</a>
 
-        <router-outlet></router-outlet>
+        <router-outlet data-on${pageTitleChangeEventName}="onPageTitleChange"></router-outlet>
       `;
+    }
+
+    onPageTitleChange(event) {
+      this.title = event.detail;
     }
   }
 );
@@ -184,16 +184,16 @@ Min.defineElement(
           </h4>
         </div>
         ${this.templateMap(this.items, (_item, index) => `<todo-item index="${index}"></todo-item>`)}
-        <button class="add">Add Item</button>
+        <button class="add" data-onclick="addItem">Add Item</button>
       </div>`
     }
 
-    addItemListener = this.eventListener('.add', 'click', () => {
+    addItem() {
       const name = prompt('Enter item name');
       if (name) {
         this.stateDispatch('addItem', { name, completed: false, store: { name: 'Kroger' } });
       }
-    });
+    }
   }
 );
 
@@ -233,29 +233,34 @@ Min.defineElement(
       }
       const { name, completed, store } = this.item;
       return `<div class="todo-item">
-      <input type="checkbox" data-name="${name}" ${completed ? 'checked="true"' : ''}"/>
+      <input 
+        type="checkbox"
+        data-name="${name}"
+        ${completed ? 'checked="true"' : ''}"
+        data-onchange="inputChange"
+      />
       <h3>
         ${name}
         ${completed ? 'DONE!' : ''}  
       </h3>
       <p>Store: ${store.name}</p>
-      <button class="change-store" style="float: right;">Change Store</button>
-      <button class="remove" style="float: right;">Remove Item</button>
+      <button data-onclick="changeStore" class="change-store" style="float: right;">Change Store</button>
+      <button data-onclick="removeItem" class="remove" style="float: right;">Remove Item</button>
     </div>`
     }
 
-    checkBoxListener = this.eventListener('input', 'change', () => {
+    inputChange() {
       this.stateDispatch('setItem', this.indexNum, { ...this.item, completed: event.target.checked });
-    });
+    }
 
-    removeItemListener = this.eventListener('.remove', 'click', () => {
+    removeItem() {
       this.stateDispatch('removeItem', this.indexNum);
-    });
+    }
 
-    changeStoreListener = this.eventListener('.change-store', 'click', () => {
+    changeStore() {
       const otherStoreName = 'Giant Eagle';
       this.item.store.name = this.item.store.name === otherStoreName ? 'Kroger' : otherStoreName;
-    });
+    }
   }
 );
 
@@ -357,24 +362,24 @@ Min.defineElement(
       dispatchPageTitleEv(this, 'Passing Data Into Children');
     }
 
-    counterListener = this.eventListener('button', 'click', (event) => {
-      let value = 1;
-      if (event.target.textContent === '-') {
-        value *= -1;
-      }
-      this.counter += value;
-    });
-
     render() {
       return `
         <div>
-          <button>+</button>
-          <button>-</button>
+          <button data-onclick="buttonClick">+</button>
+          <button data-onclick="buttonClick">-</button>
         </div>
         <days-list data-count="counter" data-days="days"></days-list>
         <days-list data-count="counter" data-days="days"></days-list>
         <days-list data-count="counter" data-days="days"></days-list>
       `
+    }
+
+    buttonClick(event) {
+      let value = 1;
+      if (event.target.textContent === '-') {
+        value *= -1;
+      }
+      this.counter += value;
     }
   }
 );

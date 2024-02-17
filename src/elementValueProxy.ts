@@ -22,8 +22,9 @@ const getProxyConfig = (callback: any) => ({
     if (Array.isArray(target) && targetValue instanceof Function) {
       if (propertyName === 'push') {
         targetValue = (...args: any[]) => {
+          const returnVal = target[propertyName](...args);
           callback();
-          return target[propertyName](...args);
+          return returnVal;
         }
       }
       if (propertyName === 'splice') {

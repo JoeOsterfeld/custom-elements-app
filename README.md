@@ -1,6 +1,6 @@
 # Min Framework
 
-A tiny front end framework. GZipped Bundle Size: `11.1kb`.
+A tiny front end framework. GZipped Bundle Size: `11kb`.
 
 ## What it is
 
@@ -24,25 +24,55 @@ Import the package of the CDN, and create your first component:
 ```html
 <!DOCTYPE html>
 <head>
-  <title>To Do List</title>
-  <script src="https://www.unpkg.com/minfw@1.0.0/dist/minfw.umd.js"></script>
+  <title>Grocery List</title>
+  <script src="https://www.unpkg.com/minfw@1.2.0/dist/minfw.umd.js"></script>
 
   <script>
     Min.defineElement(
-        class extends Min.MinElement {
-            static tagName = 'grocery-list';
-            items = ['Milk', 'Bread', 'Eggs', 'Apples'];
+      class extends Min.MinElement {
+        static tagName = 'grocery-list';
+        static observedAttributes = ['items']
+        static css = `
+          li.completed { 
+            text-decoration: line-through;
+          }
+        `;
 
-            render() {
-                return `
-                    <h3>Grocery List</h3>
-                    <ul>
-                        ${this.templateMap(this.items, (item) => `<li>${item}</li>`)}
-                    </ul>
-                `
-            }
+        items = ['Milk', 'Bread', 'Eggs', 'Apples'];
+
+        render() {
+            return `
+                <h3>Grocery List</h3>
+                <ul>
+                    ${this.templateMap(this.items, (item, index) => `<li>
+                      <input
+                        type="checkbox"
+                        data-onchange="itemCompleted"
+                        />  
+                        ${item}
+                    </li>`)}
+                </ul>
+                <button data-onclick="addItem">Add Item</button>
+            `
         }
-    )
+
+        itemCompleted(event) {
+          const li = event.target.parentElement;
+          if (event.target.checked && !li.classList.contains('completed')) {
+            li.classList.add('completed');
+          } else {
+            li.classList.remove('completed')
+          }
+        }
+
+        addItem() {
+          const itemName = prompt('Add item to list');
+          if (itemName) {
+            this.items.push(itemName);
+          }
+        }
+      }
+    );
   </script>
 </head>
 <body>
