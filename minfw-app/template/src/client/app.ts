@@ -15,7 +15,7 @@ defineElement(
       return `
         <app-header title="${this.appTitle}"></app-header>
         <main>
-          <p>This is an app made with min fw</p>
+          <p>This is an app made with minfw</p>
         </main>
         <app-footer title="${this.appTitle}"></app-footer>
       `;

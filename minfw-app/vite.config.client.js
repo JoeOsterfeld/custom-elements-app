@@ -2,15 +2,16 @@ import { defineConfig } from 'vite';
 
 export default defineConfig({
   publicDir: './template/public',
+  // appType: 'spa',
   build: {
-    outDir: 'template/dist',
+    outDir: 'template/dist/client',
     sourcemap: true,
     minify: 'terser',
     lib: {
-      entry: 'template/src/app.ts',
+      entry: 'template/src/client/app.ts',
       fileName: 'app',
       name: 'App',
-      formats: ['cjs'],
+      formats: ['iife'] // ['cjs'],
     },
   },
 });
